@@ -15,6 +15,11 @@ in{
   #   device = "/data/main/photo";
   #   options = [ "bind" ];
   # };
+  fileSystems."/sftp/david/videos" = {
+    device = "/data/2/videos";
+    options = [ "bind" ];
+  };
+
 
   containers.sftp = {
     autoStart = true;
