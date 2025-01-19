@@ -16,10 +16,10 @@ in{
     options = [ "bind" ];
   };
 
-  fileSystems."/sftp/david/photo" = {
-    device = "/data/main/photo";
-    options = [ "bind" ];
-  };
+  # fileSystems."/sftp/david/photo" = {
+  #   device = "/data/main/photo";
+  #   options = [ "bind" ];
+  # };
 
   containers.sftp = {
     autoStart = true;
