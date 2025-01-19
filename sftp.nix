@@ -11,11 +11,6 @@ in{
   };
   networking.firewall.allowedTCPPorts = [ 222 ];
   
-  fileSystems."/sftp/borg/home" = {
-    device = "/data/main/borg/home";
-    options = [ "bind" ];
-  };
-
   # fileSystems."/sftp/david/photo" = {
   #   device = "/data/main/photo";
   #   options = [ "bind" ];
@@ -56,17 +51,6 @@ in{
 
       system.stateVersion = "24.11";
       users = {
-          users.borg = {
-            isNormalUser = true;
-            description = "borg";
-            extraGroups = [ ];
-            openssh.authorizedKeys.keys = [
-              (builtins.readFile /etc/nixos/secret/ssh_borg_key)
-            ];
-            packages = with pkgs; [];
-            uid = 1002;
-          };
-
         ldap = {
           enable = true;        
           daemon.enable = true;

@@ -24,6 +24,7 @@
   system.autoUpgrade.allowReboot = true;
 
   networking.hostName = "homenas"; # Define your hostname.
+  networking.nameservers = [ vars.ip ]; 
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -70,12 +71,30 @@
     variant = "";
   };
 
+  fileSystems."/srv/borg/home" = {
+    device = "/data/main/borg/home";
+    options = [ "bind" ];
+  };
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.david = {
-    isNormalUser = true;
-    description = "david";
-    extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [];
+  users.users =
+  { 
+    david = {
+      isNormalUser = true;
+      description = "david";
+      extraGroups = [ "networkmanager" "wheel" ];
+      packages = with pkgs; [];
+    };
+    borg = {
+        isNormalUser = true;
+      description = "borg";
+      extraGroups = [ ];
+      openssh.authorizedKeys.keys = [
+        (builtins.readFile /etc/nixos/secret/ssh_borg_key)
+      ];
+      packages = with pkgs; [];
+      uid = 1002;
+    };
   };
 
   # Allow unfree packages
@@ -86,6 +105,8 @@
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
 
+    borgbackup
+    dig
     hddtemp
     ripgrep
   #  wget
