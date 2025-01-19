@@ -3,11 +3,14 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
-
+  let 
+        vars = import ./vars.nix; 
+  in
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      ./coredns.nix
     ];
 
   # Bootloader.
@@ -28,7 +31,7 @@
       ipv4 = {
         addresses = [ 
           {
-            address = "192.168.0.200";
+            address = vars.ip;
             prefixLength = 24;
           }
         ];   
