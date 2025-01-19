@@ -13,6 +13,7 @@
       ./coredns.nix
       ./openldap.nix
       ./sftp.nix 
+      ./k3s.nix
     ];
 
   # Bootloader.

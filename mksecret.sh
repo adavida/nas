@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 mkdir -p secret
+mkdir -p manifest
 
 function gen_secret() {
     FICHIER="$1"
@@ -11,3 +12,4 @@ function gen_secret() {
 
 
 gen_secret secret/olcRootPW
+curl  https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.12.0/deploy/static/provider/cloud/deploy.yaml > manifest/ingress.yaml 
