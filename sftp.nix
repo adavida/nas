@@ -19,8 +19,7 @@ in{
     device = "/data/2/videos";
     options = [ "bind" ];
   };
-
-
+ 
   containers.sftp = {
     autoStart = true;
     privateNetwork = true;
@@ -46,6 +45,11 @@ in{
         mountPoint = "/sftp";
         isReadOnly = false;
       };
+      "openldap_socket" = {
+        hostPath = "/var/run/openldap/ldapi";
+        mountPoint = "/var/run/openldap/ldapi";
+        isReadOnly = false;
+      };
       # "/sftp/borg" = {
       #   hostPath = "/data/main/borg/";
       #   mountPoint = "/sftp/borg";
@@ -62,7 +66,7 @@ in{
           base = "${vars.base_dn}";
           bind.distinguishedName = "cn=admin,${vars.base_dn}";
           bind.passwordFile = "/etc/nixos/secret/olcRootPW";
-          server = "ldap://192.168.100.10";
+          server = "ldapi:///";
           useTLS = true;
           extraConfig = ''
             ldap_version 3
