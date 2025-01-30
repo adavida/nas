@@ -50,7 +50,8 @@
 
             /* allow read on anything else */
             ''{1}to *
-                by * read''
+		            by self read
+                by * none''
           ];
         };
       };
