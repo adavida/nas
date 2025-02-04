@@ -5,20 +5,30 @@
   in
 {
   networking.firewall.allowedTCPPorts = [
-      389
       636
   ];
-  
+
   services.openldap = {
     enable = true;
     # mutableConfig = true;
 
-    urlList = [ "ldap:///" "ldapi:///" ];
+    urlList = [ 
+      "ldapi:///" 
+      "ldaps:///" 
+    ];
 
 
     settings = {
       attrs = {
         olcLogLevel = "conns config";
+
+        olcTLSCACertificateFile = "/etc/nixos/secret/certs/homeCA.crt";
+        olcTLSCertificateFile = "/etc/nixos/secret/certs/ldap.nas.local.crt";
+        olcTLSCertificateKeyFile = "/etc/nixos/secret/certs/ldap.nas.local.key";
+        olcTLSCipherSuite = "HIGH:MEDIUM:+3DES:+RC4:+aNULL";
+        olcTLSCRLCheck = "none";
+        olcTLSVerifyClient = "never";
+        olcTLSProtocolMin = "3.1";
       };
 
       children = {

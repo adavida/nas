@@ -86,7 +86,7 @@
       packages = with pkgs; [];
     };
     borg = {
-        isNormalUser = true;
+      isNormalUser = true;
       description = "borg";
       extraGroups = [ ];
       openssh.authorizedKeys.keys = [
@@ -104,11 +104,16 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    git
 
+    bat
     borgbackup
     dig
+    gnumake
     hddtemp
+    openssl
     ripgrep
+    tree
   #  wget
   ];
 
