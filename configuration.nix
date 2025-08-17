@@ -23,6 +23,12 @@
   system.autoUpgrade.enable = true;
   system.autoUpgrade.allowReboot = true;
 
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+
   networking.hostName = "homenas"; # Define your hostname.
   networking.nameservers = [ vars.ip ]; 
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -114,7 +120,8 @@
     openssl
     ripgrep
     tree
-  #  wget
+
+#  wget
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -130,6 +137,7 @@
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
+     # services.openssh.settings.PermitRootLogin = "yes"; 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
