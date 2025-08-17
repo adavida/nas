@@ -5,6 +5,9 @@ in {
     networking.firewall.allowedTCPPorts = [
       6443 # k3s
     ];
+    
+    systemd.services."k3s".after = [ "openldap.service" ];
+    
     services.k3s = {
         enable = true;
         role = "server";

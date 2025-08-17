@@ -18,8 +18,11 @@ in{
   fileSystems."/sftp/david/videos" = {
     device = "/data/2/videos";
     options = [ "bind" ];
+    depends = [ "/data/2/videos" ];
   };
  
+  systemd.services."container@sftp".after = [ "openldap.service" ];
+
   containers.sftp = {
     autoStart = true;
     privateNetwork = true;
