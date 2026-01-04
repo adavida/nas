@@ -1,6 +1,7 @@
 { config, pkgs, ...}:
   let 
-        vars = import ./vars.nix; 
+        vars = import ./vars.nix;
+        ip = "100.110.67.40";
   in
 {
     networking.firewall.allowedUDPPorts= [ 53 ];
@@ -15,8 +16,8 @@
       )
       ;
       @    IN  NS  ns1.${vars.base_host}.
-      ns   IN  A ${vars.ip} 
-      *    IN  A ${vars.ip}
+      ns   IN  A ${ip} 
+      *    IN  A ${ip}
     '';
 
     systemd.services.coredns.serviceConfig = {
@@ -47,6 +48,9 @@
             file /etc/dns.db
             log
             errors
+          }
+          example.org {
+            whoami
           }
          '';
     };

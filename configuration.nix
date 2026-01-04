@@ -20,6 +20,8 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  services.tailscale.enable = true;
+
   system.autoUpgrade.enable = true;
   system.autoUpgrade.allowReboot = true;
 
