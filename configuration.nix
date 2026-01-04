@@ -10,10 +10,10 @@
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      ./coredns.nix
-      ./openldap.nix
-      ./sftp.nix 
-      ./k3s.nix
+      ./service/coredns.nix
+      ./service/openldap.nix
+      ./service/sftp.nix 
+      ./service/k3s.nix
     ];
 
   # Bootloader.

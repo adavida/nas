@@ -1,6 +1,6 @@
 { config, pkgs, ...}:
   let 
-        vars = import ./vars.nix;
+        vars = import ../vars.nix;
         ip = "100.110.67.40";
   in
 {

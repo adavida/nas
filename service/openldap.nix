@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
   let 
     path="/var/lib/openldap/data";
-    vars = import ./vars.nix;
+    vars = import ../vars.nix;
   in
 {
   networking.firewall.allowedTCPPorts = [
@@ -49,7 +49,7 @@
 
           /* your admin account, do not use writeText on a production system */
           olcRootDN = "cn=admin,${vars.base_dn}";
-          olcRootPW.path = pkgs.writeText "olcRootPW" (builtins.readFile ./secret/olcRootPW);
+          olcRootPW.path = pkgs.writeText "olcRootPW" (builtins.readFile /etc/nixos/secret/olcRootPW);
 
           olcAccess = [
             /* custom access rules for userPassword attributes */
