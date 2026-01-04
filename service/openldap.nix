@@ -1,30 +1,34 @@
-{ config, pkgs, ... }:
-  let 
-    path="/var/lib/openldap/data";
-    vars = import ../vars.nix;
-  in
+{
+  config,
+  pkgs,
+  secret,
+  ...
+}:
+let
+  path = "/var/lib/openldap/data";
+  vars = import ../vars.nix;
+in
 {
   networking.firewall.allowedTCPPorts = [
-      636
+    636
   ];
 
   services.openldap = {
     enable = true;
     # mutableConfig = true;
 
-    urlList = [ 
-      "ldapi:///" 
-      "ldaps:///" 
+    urlList = [
+      "ldapi:///"
+      "ldaps:///"
     ];
-
 
     settings = {
       attrs = {
         olcLogLevel = "conns config";
 
-        olcTLSCACertificateFile = "/etc/nixos/secret/certs/homeCA.crt";
-        olcTLSCertificateFile = "/etc/nixos/secret/certs/ldap.nas.local.crt";
-        olcTLSCertificateKeyFile = "/etc/nixos/secret/certs/ldap.nas.local.key";
+        olcTLSCACertificateFile = "${secret}/certs/homeCA.crt";
+        olcTLSCertificateFile = "${secret}/certs/ldap.nas.local.crt";
+        olcTLSCertificateKeyFile = "${secret}/certs/ldap.nas.local.key";
         olcTLSCipherSuite = "HIGH:MEDIUM:+3DES:+RC4:+aNULL";
         olcTLSCRLCheck = "none";
         olcTLSVerifyClient = "never";
@@ -40,28 +44,33 @@
         ];
 
         "olcDatabase={1}mdb".attrs = {
-          objectClass = [ "olcDatabaseConfig" "olcMdbConfig" ];
+          objectClass = [
+            "olcDatabaseConfig"
+            "olcMdbConfig"
+          ];
 
           olcDatabase = "{1}mdb";
           olcDbDirectory = path;
 
           olcSuffix = vars.base_dn;
 
-          /* your admin account, do not use writeText on a production system */
+          # your admin account, do not use writeText on a production system
           olcRootDN = "cn=admin,${vars.base_dn}";
-          olcRootPW.path = pkgs.writeText "olcRootPW" (builtins.readFile /etc/nixos/secret/olcRootPW);
+          olcRootPW.path = pkgs.writeText "olcRootPW" "${secret}/olcRootPW";
 
           olcAccess = [
-            /* custom access rules for userPassword attributes */
-            ''{0}to attrs=userPassword
-                by self write
-                by anonymous auth
-                by * none''
+            # custom access rules for userPassword attributes
+            ''
+              {0}to attrs=userPassword
+                              by self write
+                              by anonymous auth
+                              by * none''
 
-            /* allow read on anything else */
-            ''{1}to *
-		            by self read
-                by * none''
+            # allow read on anything else
+            ''
+              {1}to *
+              		            by self read
+                              by * none''
           ];
         };
       };

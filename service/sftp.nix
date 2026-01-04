@@ -1,16 +1,22 @@
-{ config, pkgs, ... }:
-let 
-    vars = import ../vars.nix;
-in{
+{
+  config,
+  pkgs,
+  secret,
+  ...
+}:
+let
+  vars = import ../vars.nix;
+in
+{
   networking.nat = {
     enable = true;
-    internalInterfaces = ["ve-+"];
+    internalInterfaces = [ "ve-+" ];
     externalInterface = "ens3";
     # Lazy IPv6 connectivity for the container
     enableIPv6 = true;
   };
   networking.firewall.allowedTCPPorts = [ 222 ];
-  
+
   # fileSystems."/sftp/david/photo" = {
   #   device = "/data/main/photo";
   #   options = [ "bind" ];
@@ -20,7 +26,7 @@ in{
     options = [ "bind" ];
     depends = [ "/data/2/videos" ];
   };
- 
+
   systemd.services."container@sftp".after = [ "openldap.service" ];
 
   containers.sftp = {
@@ -40,8 +46,8 @@ in{
 
     bindMounts = {
       "/etc/nixos/secret/olcRootPW" = {
-        hostPath = "/etc/nixos/secret/olcRootPW";        
-        mountPoint = "/etc/nixos/secret/olcRootPW";
+        hostPath = "${secret}/olcRootPW";
+        mountPoint = "${secret}/olcRootPW";
       };
       "/sftp" = {
         hostPath = "/sftp";
@@ -59,59 +65,66 @@ in{
       #   isReadOnly = false;
       # };
     };
-    config = { config, pkgs, lib, ... }: {
+    config =
+      {
+        config,
+        pkgs,
+        lib,
+        ...
+      }:
+      {
 
-      system.stateVersion = "24.11";
-      users = {
-        ldap = {
-          enable = true;        
-          daemon.enable = true;
-          base = "${vars.base_dn}";
-          bind.distinguishedName = "cn=admin,${vars.base_dn}";
-          bind.passwordFile = "/etc/nixos/secret/olcRootPW";
-          server = "ldapi:///";
-          useTLS = true;
-          extraConfig = ''
-            ldap_version 3
-            # pam_password md5
-            validnames /.*/i
-          '';
+        system.stateVersion = "24.11";
+        users = {
+          ldap = {
+            enable = true;
+            daemon.enable = true;
+            base = "${vars.base_dn}";
+            bind.distinguishedName = "cn=admin,${vars.base_dn}";
+            bind.passwordFile = "/etc/nixos/secret/olcRootPW";
+            server = "ldapi:///";
+            useTLS = true;
+            extraConfig = ''
+              ldap_version 3
+              # pam_password md5
+              validnames /.*/i
+            '';
+          };
         };
-      };
-      security.pam.services.sshd.makeHomeDir = true;
-      security.pam.services.login.makeHomeDir = true;
-      security.pam.services.systemd-user.makeHomeDir = true;
-      systemd.services.nslcd = {
-        after = [ "Network-Manager.service" ];
-      };
+        security.pam.services.sshd.makeHomeDir = true;
+        security.pam.services.login.makeHomeDir = true;
+        security.pam.services.systemd-user.makeHomeDir = true;
+        systemd.services.nslcd = {
+          after = [ "Network-Manager.service" ];
+        };
 
-      services.openssh = {
-        enable = true;
-        ports = [ 222 ];
-        openFirewall = true;
-        allowSFTP = true;
-        settings = {
-          PasswordAuthentication = true;
-        #   AllowUsers = null; # Allows all users by default. Can be [ "user1" "user2" ]
-        #   UseDns = true;
-          X11Forwarding = false;
-          PermitRootLogin = "no"; # "yes", "without-password", "prohibit-password", "forced-commands-only", "no"
-          ForceCommand  = "internal-sftp";
-          ChrootDirectory = "/sftp/%u";
-        };
-      };
-      networking = {
-        firewall = {
+        services.openssh = {
           enable = true;
-          allowedTCPPorts = [ 222 ];
+          ports = [ 222 ];
+          openFirewall = true;
+          allowSFTP = true;
+          settings = {
+            PasswordAuthentication = true;
+            #   AllowUsers = null; # Allows all users by default. Can be [ "user1" "user2" ]
+            #   UseDns = true;
+            X11Forwarding = false;
+            PermitRootLogin = "no"; # "yes", "without-password", "prohibit-password", "forced-commands-only", "no"
+            ForceCommand = "internal-sftp";
+            ChrootDirectory = "/sftp/%u";
+          };
         };
-        # Use systemd-resolved inside the container
-        # Workaround for bug https://github.com/NixOS/nixpkgs/issues/162686
-        useHostResolvConf = lib.mkForce false;
-      };
-      
-      services.resolved.enable = true;
+        networking = {
+          firewall = {
+            enable = true;
+            allowedTCPPorts = [ 222 ];
+          };
+          # Use systemd-resolved inside the container
+          # Workaround for bug https://github.com/NixOS/nixpkgs/issues/162686
+          useHostResolvConf = lib.mkForce false;
+        };
 
-    };
+        services.resolved.enable = true;
+
+      };
   };
 }
