@@ -3,6 +3,7 @@
   pkgs,
   inputs,
   secret,
+  ssh_borg_key,
   ...
 }:
 {
@@ -63,12 +64,9 @@
       isNormalUser = true;
       description = "borg";
       extraGroups = [ ];
-      openssh.authorizedKeys.keyFiles = [
-        "${secret}/ssh_borg_key"
+      openssh.authorizedKeys.keys = [
+        (builtins.readFile ./ssh_borg_key)
       ];
-      # openssh.authorizedKeys.keys = [
-      #   (builtins.readFile /etc/nixos/secret/ssh_borg_key)
-      # ];
       packages = with pkgs; [ ];
       uid = 1002;
     };
