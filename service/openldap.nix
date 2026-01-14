@@ -2,11 +2,11 @@
   config,
   pkgs,
   secret,
+  vars,
   ...
 }:
 let
   path = "/var/lib/openldap/data";
-  vars = import ../vars.nix;
 in
 {
   networking.firewall.allowedTCPPorts = [

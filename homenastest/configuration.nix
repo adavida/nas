@@ -11,15 +11,14 @@
 {
   imports = [
     # Include the results of the hardware scan.
-
   ];
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.grub.enable = true;
+  boot.loader.grub.device = "/dev/sda";
+  boot.loader.grub.useOSProber = true;
 
-  networking.hostName = "homenas"; # Define your hostname.
-  networking.nameservers = [ vars.ip ];
+  networking.hostName = "homenastest"; # Define your hostname.
 
   networking.interfaces = {
     enp1s0 = {
@@ -34,10 +33,10 @@
       useDHCP = true;
     };
   };
-
-  fileSystems."/srv/borg/home" = {
-    device = "/data/main/borg/home";
-    options = [ "bind" ];
+  services.openssh = {
+    enable = true;
+    settings = {
+      PermitRootLogin = "yes";
+    };
   };
-
 }

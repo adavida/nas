@@ -1,7 +1,10 @@
-{ config, pkgs, ... }:
-let
-  vars = import ../vars.nix;
-in
+{
+  config,
+  pkgs,
+  vars,
+  ...
+}:
+
 {
   networking.firewall.allowedTCPPorts = [
     6443 # k3s

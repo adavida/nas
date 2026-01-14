@@ -2,11 +2,9 @@
   config,
   pkgs,
   secret,
+  vars,
   ...
 }:
-let
-  vars = import ../vars.nix;
-in
 {
   networking.nat = {
     enable = true;
