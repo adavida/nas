@@ -18,21 +18,7 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs",
-        "secret": "secret"
-      }
-    },
-    "secret": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1768381483,
-        "narHash": "sha256-NrAsUSeoOtnbHVVHKJSrWXHUeUP6rKKdKWR1XKv47oM=",
-        "path": "/etc/nixos/secret",
-        "type": "path"
-      },
-      "original": {
-        "path": "/etc/nixos/secret",
-        "type": "path"
+        "nixpkgs": "nixpkgs"
       }
     }
   },

@@ -3,10 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
-    secret = {
-      url = "/etc/nixos/secret";
-      flake = false;
-    };
+    # secret = {
+    #   url = "/etc/nixos/secret";
+    #   flake = false;
+    # };
   };
 
   outputs =
@@ -21,7 +21,7 @@
         ./service/k3s.nix
         {
           _module.args = {
-            secret = inputs.secret;
+            secret = "/etc/nixos/secret";
             inputs = inputs;
           };
         }
