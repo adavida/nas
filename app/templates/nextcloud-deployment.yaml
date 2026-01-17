@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-nextcloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-nextcloud
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-nextcloud
+    spec:
+      containers:
+      - name: nextcloud
+        image: docker.io/nextcloud:latest
+        imagePullPolicy: Always
+        command:  ["sh", "/init.sh"]
+        env:
+          - name: POSTGRES_HOST
+            value: {{ .Release.Name }}-nextcloud-database-service
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Release.Name }}-nextcloud-database-configmap
+                key: POSTGRES_DB
+          - name: POSTGRES_USER
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Release.Name }}-nextcloud-database-configmap
+                key: POSTGRES_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Release.Name }}-nextcloud-database-configmap
+                key: POSTGRES_PASSWORD
+        volumeMounts:
+          - mountPath: "/var/www/html"
+            name: main-storage
+            subPath: html
+          - mountPath: "/var/www/html/data"
+            name: main-storage
+            subPath: ndata
+          - name: ca-pemstore
+            mountPath: /etc/ssl/certs/perso.pem
+            subPath: rootCA.pem
+            readOnly: true 
+          - name: nextcloud-config
+            mountPath:  /init.sh
+            subPath: init.sh
+          - name: nextcloud-config
+            mountPath:  /usr/local/etc/php/conf.d/custom.ini
+            subPath: config.ini
+          - name: 'authelia-secrets'
+            mountPath: '/secret'
+            subPath: 'oicd_nextcloud_secret'
+            readOnly: true
+        resources: {}
+        ports:
+        - containerPort: 80 
+        - containerPort: 9091
+      volumes:
+        - name: empty-volume
+          emptyDir: {}
+        - name: main-storage
+          hostPath: 
+            path: /data/ssd/nc
+        - name: ca-pemstore
+          configMap:
+            name: ca-pemstore
+        - name: nextcloud-config
+          configMap:
+            name: {{ .Release.Name }}-nextcloud-config
+        - name: authelia-secrets
+          secret:
+            secretName: {{ .Release.Name }}-authelia-secret

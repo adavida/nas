@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-jellyfin-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/access-log: "true"
+    nginx.ingress.kubernetes.io/enable-rewrite-log: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "X-Forwarded-For"
+spec:
+  tls:
+  - hosts:
+    - jellyfin.nas.local
+    secretName: wildcard-tls-cert
+  ingressClassName: "nginx"
+  rules:
+    - host: jellyfin.nas.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-jellyfin-service
+                port:
+                  number: 80

@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-nextcloud-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/access-log: "true"
+    nginx.ingress.kubernetes.io/enable-rewrite-log: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "X-Forwarded-For"
+    nginx.ingress.kubernetes.io/proxy-body-size: "1000m" 
+spec:
+  tls:
+  - hosts:
+    - nc.{{ .Values.baseHostname }}
+    secretName: wildcard-tls-cert
+  ingressClassName: "nginx"
+  rules:
+    - host: nc.nas.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-nextcloud-service
+                port:
+                  number: 80

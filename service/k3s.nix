@@ -15,7 +15,10 @@
   services.k3s = {
     enable = true;
     role = "server";
-    extraFlags = "--write-kubeconfig-mode 644 --disable=traefik";
+    extraFlags = [
+      "--write-kubeconfig-mode 644"
+      "--disable=traefik"
+    ];
     # manifests."ingress" = {
     #   source = ./manifest/ingress.yaml;
     #   enable = true;

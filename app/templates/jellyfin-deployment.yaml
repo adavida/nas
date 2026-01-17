@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-jellyfin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-jellyfin
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-jellyfin
+    spec:
+      containers:
+      - name: jellyfin
+        image: lscr.io/linuxserver/jellyfin:latest
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8096
+        volumeMounts:
+          - mountPath: "/config"
+            name: main-storage
+            subPath: srv/jellyfin
+          - mountPath: "/data/movies"
+            name: main2-storage
+            readOnly: true
+          - name: dev-dri
+            mountPath: /dev/dri
+            readOnly: true
+      volumes:
+        - name: main-storage
+          hostPath: 
+            path: /data/main/srv
+        - name: main2-storage
+          hostPath: 
+            path: /data/2/videos
+        - name: dev-dri
+          hostPath:
+            path: /dev/dri

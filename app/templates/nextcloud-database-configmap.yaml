@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-nextcloud-database-configmap
+  labels:
+    app: {{ .Release.Name }}-nextcloud-database
+data:
+  POSTGRES_DB: nextcloud
+  POSTGRES_USER: nextcloud 
+  POSTGRES_PASSWORD:  {{ .Files.Get "secrets/nextcloud/postgress_password"  }}

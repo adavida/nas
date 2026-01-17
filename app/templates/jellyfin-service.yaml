@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-jellyfin-service
+spec:
+  selector:
+    app: {{ .Release.Name }}-jellyfin
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8096
+    name:  {{ .Release.Name }}-jellyfin-http

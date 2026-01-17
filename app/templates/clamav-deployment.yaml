@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-clamav
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-clamav
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-clamav
+    spec:
+      containers:
+      - name: clamav
+        image: docker.io/clamav/clamav:stable
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 3310
+          - containerPort: 7357

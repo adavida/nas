@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-authelia
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-authelia
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-authelia 
+    spec:
+      containers:
+      - name: authelia
+        image: docker.io/authelia/authelia:latest
+        imagePullPolicy: Always
+        env:
+          - name: 'AUTHELIA_JWT_SECRET_FILE'
+            value: '/app/secrets/jwt_secret'
+          - name: 'AUTHELIA_SESSION_SECRET_FILE'
+            value: '/app/secrets/session_secret'
+          - name: 'AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE'
+            value: '/app/secrets/storage_encryption_key'
+          - name: 'AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE'
+            value: '/app/secrets/oidc_hmac_secret'
+          - name: 'AUTHELIA_AUTHENTICATION_BACKEND_LDAP_PASSWORD_FILE'
+            value: '/app/secrets/ldap_password'
+        volumeMounts:
+          - name: config-volume
+            mountPath: /config/configuration.yml
+            subPath: configuration
+          - name: empty-volume
+            readOnly: false
+            mountPath: /config
+          - name: ca-pemstore
+            mountPath: /etc/ssl/certs/my-cert.pem
+            subPath: rootCA.pem
+            readOnly: false
+          - mountPath: '/app/secrets'
+            name: 'secrets'
+            readOnly: true
+        resources: {}
+        ports:
+        - containerPort: 9091
+      volumes:
+        - name: config-volume
+          configMap:
+           name: {{ .Release.Name }}-authelia-config
+        - name: empty-volume
+          emptyDir: {}
+        - name: ca-pemstore
+          configMap:
+            name: ca-pemstore
+        - name: secrets
+          secret:
+            secretName: {{ .Release.Name }}-authelia-secret 

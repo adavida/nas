@@ -1,0 +1,115 @@
+server:
+  address: 'tcp://:9091'
+
+log:
+  level: 'info'
+  format: 'json'
+  file_path: /config/authelia.log  
+totp:
+  issuer: '{{ .Values.baseHostname }}'
+
+access_control:
+  default_policy: one_factor
+  rules:
+    - domain: authelia.{{ .Values.baseHostname }}
+      policy: bypass
+    - domain: '*.{{ .Values.baseHostname }}'
+      policy: one_factor
+authentication_backend:
+  ldap:
+    address: 'ldaps://{{ .Values.serverIp }}'
+    implementation: 'custom'
+    timeout: '5s'
+    start_tls: false
+    tls:
+      server_name: 'ldap.{{ .Values.baseHostname }}'
+      skip_verify: true
+      minimum_version: 'TLS1.2'
+    base_dn: '{{ .Values.baseDn }}'
+    additional_users_dn: 'OU=users'
+    users_filter: '(&(|({username_attribute}={input})({mail_attribute}={input}))(objectClass=person))'
+    additional_groups_dn: 'OU=groups'
+    groups_filter: '(&(member=UID={input},OU=users,{{ .Values.baseDn }})(objectClass=groupOfNames))'
+    user: 'CN=admin,{{ .Values.baseDn }}'
+    attributes:
+      # identifier: 'uid'
+      distinguished_name: 'distinguishedName'
+      username: 'cn'
+      mail: 'mail'
+      member_of: 'memberOf'
+      group_name: 'cn'
+session:
+  cookies:
+    - name: 'authelia_session'
+      domain: '{{ .Values.baseHostname }}'  # Should match whatever your root protected domain is
+      authelia_url: 'https://authelia.{{ .Values.baseHostname }}'
+      expiration: '1 hour'
+      inactivity: '5 minutes'
+
+regulation:
+  max_retries: 3
+  find_time: '2 minutes'
+  ban_time: '5 minutes'
+
+storage:
+  local:
+    path: '/config/db.sqlite3'      
+notifier:
+  disable_startup_check: false
+  filesystem:
+    filename: '/config/notification.txt'
+identity_providers:
+  oidc:
+    jwks:
+      - key_id: 'nas'
+        algorithm: 'RS256'
+        use: 'sig'
+        key: |- {{ .Files.Get "key/authelia/private_key.pem" | nindent 10 }}
+        certificate_chain: |- {{ .Files.Get "key/authelia/certificate.pem" | nindent 10 }}
+    enable_client_debug_messages: false
+    minimum_parameter_entropy: 8
+    enforce_pkce: 'public_clients_only'
+    enable_pkce_plain_challenge: false
+    enable_jwt_access_token_stateless_introspection: false
+    discovery_signed_response_alg: 'none'
+    discovery_signed_response_key_id: ''
+    require_pushed_authorization_requests: false
+    authorization_policies:
+      policy_name:
+        default_policy: 'one_factor'
+        rules:
+          - policy: 'deny'
+            subject: 'group:services'
+    lifespans:
+      access_token: '1h'
+      authorize_code: '1m'
+      id_token: '1h'
+      refresh_token: '90m'
+    cors:
+      endpoints:
+        - 'authorization'
+        - 'token'
+        - 'revocation'
+        - 'introspection'
+      allowed_origins:
+        - 'https://{{ .Values.baseHostname }}'
+      allowed_origins_from_client_redirect_uris: false     
+  ## The other portions of the mandatory OpenID Connect 1.0 configuration go here.
+  ## See: https://www.authelia.com/c/oidc
+    clients:
+      - client_id: 'nextcloud'
+        client_name: 'NextCloud'
+        client_secret: {{ .Files.Get "secrets/authelia/oicd_nextcloud_secret" | quote }}
+        public: false
+        authorization_policy: 'one_factor'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://nc.{{ .Values.baseHostname }}/apps/user_oidc/code'
+        scopes:
+          - 'openid'
+          - 'profile'
+          - 'email'
+          - 'groups'
+        userinfo_signed_response_alg: 'none'
+        token_endpoint_auth_method: 'client_secret_post' 
