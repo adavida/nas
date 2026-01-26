@@ -1,7 +1,7 @@
 {
   config,
   pkgs,
-  secret,
+  secrets,
   vars,
   ...
 }:
@@ -26,9 +26,9 @@ in
       attrs = {
         olcLogLevel = "conns config";
 
-        olcTLSCACertificateFile = "${secret}/certs/homeCA.crt";
-        olcTLSCertificateFile = "${secret}/certs/ldap.nas.local.crt";
-        olcTLSCertificateKeyFile = "${secret}/certs/ldap.nas.local.key";
+        olcTLSCACertificateFile = "${secrets}/certs/homeCA.crt";
+        olcTLSCertificateFile = "${secrets}/certs/ldap.nas.local.crt";
+        olcTLSCertificateKeyFile = "${secrets}/certs/ldap.nas.local.key";
         olcTLSCipherSuite = "HIGH:MEDIUM:+3DES:+RC4:+aNULL";
         olcTLSCRLCheck = "none";
         olcTLSVerifyClient = "never";
@@ -56,7 +56,7 @@ in
 
           # your admin account, do not use writeText on a production system
           olcRootDN = "cn=admin,${vars.base_dn}";
-          olcRootPW.path = pkgs.writeText "olcRootPW" "${secret}/olcRootPW";
+          olcRootPW.path = pkgs.writeText "olcRootPW" "${secrets}/olcRootPW";
 
           olcAccess = [
             # custom access rules for userPassword attributes

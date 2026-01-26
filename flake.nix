@@ -21,7 +21,7 @@
         ./service/k3s.nix
         {
           _module.args = {
-            secret = "/etc/nixos/secret";
+            secrets = "/etc/nixos/secrets";
             inputs = inputs;
           };
         }
