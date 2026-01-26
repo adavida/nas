@@ -65,7 +65,7 @@
       description = "borg";
       extraGroups = [ ];
       openssh.authorizedKeys.keys = [
-        (builtins.readFile ./secret/ssh_borg_key)
+        (builtins.readFile ./secrets/ssh_borg_key)
       ];
       packages = with pkgs; [ ];
       uid = 1002;

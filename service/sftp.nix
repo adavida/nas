@@ -1,7 +1,7 @@
 {
   config,
   pkgs,
-  secret,
+  secrets,
   vars,
   ...
 }:
@@ -44,8 +44,8 @@
 
     bindMounts = {
       "/etc/nixos/secret/olcRootPW" = {
-        hostPath = "${secret}/olcRootPW";
-        mountPoint = "${secret}/olcRootPW";
+        hostPath = "${secrets}/olcRootPW";
+        mountPoint = "${secrets}/olcRootPW";
       };
       "/sftp" = {
         hostPath = "/sftp";

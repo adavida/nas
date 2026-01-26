@@ -5,7 +5,7 @@
   ...
 }:
 let
-  ip = "100.110.67.40";
+  ip = vars.ip;
 in
 {
   networking.firewall.allowedUDPPorts = [ 53 ];
