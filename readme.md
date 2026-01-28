@@ -14,7 +14,7 @@ helm repo update
 helm install my-ingress ingress-nginx/ingress-nginx
 
 # configMap  of secret
-kubectl create configmap ca-pemstore --from-file=secret/rootCA.pem
+kubectl create configmap ca-pemstore --from-file=secrets/homeCA.pem
 
 
 #  Install/Update service 
@@ -22,6 +22,9 @@ helm upgrade --install app app --values ./app/values-test.yaml
 ```
 
 ```
+cp secrets/olcRootPW app/secrets/authelia/ldap_password
+
+
 # add ssh key
 ssh-keygen -t ed25519 -C "david.adler@outlook.com"
 cat ~/.ssh/id_ed25519.puby

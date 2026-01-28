@@ -13,11 +13,11 @@ metadata:
 spec:
   tls:
   - hosts:
-    - jellyfin.nas.local
+    - jellyfin.{{ .Values.baseHostname }}
     secretName: wildcard-tls-cert
   ingressClassName: "nginx"
   rules:
-    - host: jellyfin.nas.local
+    - host: jellyfin.{{ .Values.baseHostname }}
       http:
         paths:
           - path: /

@@ -18,7 +18,7 @@ spec:
     secretName: wildcard-tls-cert
   ingressClassName: "nginx"
   rules:
-    - host: nc.nas.local
+    - host: nc.{{ .Values.baseHostname }}
       http:
         paths:
           - path: /
