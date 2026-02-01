@@ -25,8 +25,8 @@ generate_random_string  64 > "$BASE_PATH_SECRETS/authelia/session_secret"
 generate_random_string  64 > "$BASE_PATH_SECRETS/authelia/oidc_hmac_secret"
 generate_random_string  64 > "$BASE_PATH_SECRETS/authelia/oicd_nextcloud_secret"
 
-generate_file_if_no_exit "$BASE_PATH_SECRETS/authelia/ldap_password"
-
+# generate_file_if_no_exit "$BASE_PATH_SECRETS/authelia/ldap_password"
+ssh root@ssh.nas.local -C 'cat /etc/nixos/secrets/olcRootPW'  > app/secrets/authelia/ldap_password
 
 echo  you_must_generate_a_random_string_of_more_than_twenty_chars_and_configure_this > "$BASE_PATH_SECRETS/authelia/storage_encryption_key"
 

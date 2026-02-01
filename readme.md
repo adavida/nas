@@ -14,8 +14,7 @@ helm repo update
 helm install my-ingress ingress-nginx/ingress-nginx
 
 # configMap  of secret
-kubectl create configmap ca-pemstore --from-file=secrets/homeCA.pem
-
+ssh root@ssh.nas.local -C 'kubectl create configmap ca-pemstore --from-file=/etc/nixos/secrets/certs/homeCA.pem'
 
 #  Install/Update service 
 helm upgrade --install app app --values ./app/values-test.yaml
@@ -28,4 +27,12 @@ cp secrets/olcRootPW app/secrets/authelia/ldap_password
 # add ssh key
 ssh-keygen -t ed25519 -C "david.adler@outlook.com"
 cat ~/.ssh/id_ed25519.puby
+```
+
+
+occ maintenance 
+```
+kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ maintenance:repair' www-data
+kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ security:bruteforce:reset' www-data
+
 ```

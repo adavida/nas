@@ -44,7 +44,7 @@ spec:
             subPath: ndata
           - name: ca-pemstore
             mountPath: /etc/ssl/certs/perso.pem
-            subPath: rootCA.pem
+            subPath: homeCA.pem
             readOnly: true 
           - name: nextcloud-config
             mountPath:  /init.sh
