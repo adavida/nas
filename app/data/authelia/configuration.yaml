@@ -4,7 +4,8 @@ server:
 log:
   level: 'info'
   format: 'json'
-  file_path: /config/authelia.log  
+  file_path: /config/authelia.log
+  keep_stdout: true
 totp:
   issuer: '{{ .Values.baseHostname }}'
 
@@ -112,4 +113,9 @@ identity_providers:
           - 'email'
           - 'groups'
         userinfo_signed_response_alg: 'none'
-        token_endpoint_auth_method: 'client_secret_post' 
+        token_endpoint_auth_method: 'client_secret_basic'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+        access_token_signed_response_alg: 'none'
