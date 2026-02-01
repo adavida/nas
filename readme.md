@@ -6,8 +6,6 @@ nixos-rebuild switch --flake /etc/nixos#homenastest
 # connect to vpn
 tailscale up
 
-kubectl create configmap ca-pemstore --from-file=rootCA.pem
-
 # install ingress
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
@@ -17,7 +15,7 @@ helm install my-ingress ingress-nginx/ingress-nginx
 ssh root@ssh.nas.local -C 'kubectl create configmap ca-pemstore --from-file=/etc/nixos/secrets/certs/homeCA.pem'
 
 #  Install/Update service 
-helm upgrade --install app app --values ./app/values-test.yaml
+helm upgrade --install app app --values ./app/values.yaml
 ```
 
 ```
