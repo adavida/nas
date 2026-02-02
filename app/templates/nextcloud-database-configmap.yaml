@@ -7,4 +7,4 @@ metadata:
 data:
   POSTGRES_DB: nextcloud
   POSTGRES_USER: nextcloud 
-  POSTGRES_PASSWORD:  {{ .Files.Get "secrets/nextcloud/postgress_password"  }}
+  POSTGRES_PASSWORD:  {{ .Files.Get (printf "%s/secrets/nextcloud/postgress_password" .Values.secretsPath) }}

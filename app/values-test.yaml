@@ -1,3 +1,4 @@
 baseHostname: "nas-test.local"
 baseDn: "DC=nas-test,DC=local" 
 serverIp: "100.125.84.100"
+secretsPath: "secrets/test"

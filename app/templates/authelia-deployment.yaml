@@ -36,7 +36,7 @@ spec:
             mountPath: /config
           - name: ca-pemstore
             mountPath: /etc/ssl/certs/my-cert.pem
-            subPath: rootCA.pem
+            subPath: homeCA.pem
             readOnly: false
           - mountPath: '/app/secrets'
             name: 'secrets'

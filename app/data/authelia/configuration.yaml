@@ -65,8 +65,8 @@ identity_providers:
       - key_id: 'nas'
         algorithm: 'RS256'
         use: 'sig'
-        key: |- {{ .Files.Get "key/authelia/private_key.pem" | nindent 10 }}
-        certificate_chain: |- {{ .Files.Get "key/authelia/certificate.pem" | nindent 10 }}
+        key: |- {{ .Files.Get  (printf "%s/key/authelia/private_key.pem" .Values.secretsPath) | nindent 10 }}
+        certificate_chain: |- {{ .Files.Get  (printf "%s/secrets/authelia/certificate.pem" .Values.secretsPath) | nindent 10 }}
     enable_client_debug_messages: false
     minimum_parameter_entropy: 8
     enforce_pkce: 'public_clients_only'
@@ -100,7 +100,7 @@ identity_providers:
     clients:
       - client_id: 'nextcloud'
         client_name: 'NextCloud'
-        client_secret: {{ .Files.Get "secrets/authelia/oicd_nextcloud_secret" | quote }}
+        client_secret: {{ .Files.Get  (printf "%s/secrets/authelia/oicd_nextcloud_secret" .Values.secretsPath) | quote }}
         public: false
         authorization_policy: 'one_factor'
         require_pkce: true
