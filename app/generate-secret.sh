@@ -13,8 +13,12 @@ generate_file_if_no_exit() {
     fi
 }
 
-BASE_PATH="$(dirname "$0")/secrets/test"
-CN="nas-test.local"
+
+
+# BASE_PATH="$(dirname "$0")/secrets/test"
+# CN="nas-test.local"
+BASE_PATH="$(dirname "$0")/secrets/prod"
+CN="nas.local"
 
 echo "base path : ${BASE_PATH}"
 echo "cn : ${CN}"

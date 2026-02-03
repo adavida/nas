@@ -19,14 +19,13 @@ helm install my-ingress ingress-nginx/ingress-nginx
 # configMap  of secret
 ssh root@ssh.nas.local -C 'kubectl create configmap ca-pemstore --from-file=/etc/nixos/secrets/certs/homeCA.pem'
 
+bash app/generate-secret.sh
+
 #  Install/Update service 
 helm upgrade --install app app --values ./app/values.yaml
 ```
 
 ```
-cp secrets/olcRootPW app/secrets/authelia/ldap_password
-
-
 # add ssh key
 ssh-keygen -t ed25519 -C "david.adler@outlook.com"
 cat ~/.ssh/id_ed25519.puby
