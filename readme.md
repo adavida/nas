@@ -1,11 +1,12 @@
 
 ```bash
 # active configuration
-nixos-rebuild switch --flake /etc/nixos#homenastest
+nixos-rebuild switch --flake /etc/nixos#homenas
 
 # create secrets and push into k8s cluster
 cd /etc/nixos/secrets/
-make k8s
+make BASE_DOMAIN=nas.local
+make BASE_DOMAIN=nas.local k8s
 
 # connect to vpn
 tailscale up

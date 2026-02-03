@@ -1,0 +1,44 @@
+dn: dc=nas-test,dc=local
+objectClass: top
+objectClass: domain
+dc: nas-test
+
+# on créee pour le neoud pour la liste des utilisateur
+dn: ou=users,dc=nas-test,dc=local
+objectClass: organizationalUnit
+ou: users
+
+# on crée la liste la liste des groups
+dn: ou=groups,dc=nas-test,dc=local
+objectClass: organizationalUnit
+ou: groups
+
+# on crée le 1er utilisateur
+dn: cn=user,ou=Users,dc=nas-test,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uidNumber: 1100
+gidNumber: 1000
+homeDirectory: /home/user
+loginShell: /bin/bash
+givenName: user
+sn: Adler
+cn: user
+displayName: display name
+uid: user
+mail: user@mail.com
+userPassword: 1234
+
+
+# on crée un groupe users
+dn: cn=users,ou=groups,dc=nas-test,dc=local
+objectClass: groupOfNames
+cn: users
+member: uid=user,ou=users,dc=nas-test,dc=local
+
+# on crée un groupe admin
+dn: cn=admin,ou=groups,dc=nas-test,dc=local
+objectClass: groupOfNames
+cn: admin
+member: uid=user,ou=users,dc=nas-test,dc=local

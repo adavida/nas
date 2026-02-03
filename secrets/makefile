@@ -1,6 +1,6 @@
 # Variables
 ROOT_CERT_NAME = rootCA
-BASE_DOMAIN=nas-test.local
+
 WILDCARD_DOMAIN = *.$(BASE_DOMAIN)
 BASE_PATH = certs
 DAYS = 3650  # 10 ans pour le certificat racine
