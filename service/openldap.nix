@@ -27,8 +27,8 @@ in
         olcLogLevel = "conns config";
 
         olcTLSCACertificateFile = "${secrets}/certs/homeCA.crt";
-        olcTLSCertificateFile = "${secrets}/certs/ldap.nas.local.crt";
-        olcTLSCertificateKeyFile = "${secrets}/certs/ldap.nas.local.key";
+        olcTLSCertificateFile = "${secrets}/certs/ldap.${vars.base_host}.crt";
+        olcTLSCertificateKeyFile = "${secrets}/certs/ldap.${vars.base_host}.key";
         olcTLSCipherSuite = "HIGH:MEDIUM:+3DES:+RC4:+aNULL";
         olcTLSCRLCheck = "none";
         olcTLSVerifyClient = "never";
