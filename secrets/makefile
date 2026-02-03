@@ -1,12 +1,13 @@
 # Variables
 ROOT_CERT_NAME = rootCA
-WILDCARD_DOMAIN = *.nas.local
+BASE_DOMAIN=nas-test.local
+WILDCARD_DOMAIN = *.$(BASE_DOMAIN)
 BASE_PATH = certs
 DAYS = 3650  # 10 ans pour le certificat racine
 OPENSSL = openssl
 
-WILDCARD = $(BASE_PATH)/_wildcard.nas.local
-LDAP = $(BASE_PATH)/ldap.nas.local
+WILDCARD = $(BASE_PATH)/_wildcard.$(BASE_DOMAIN)
+LDAP = $(BASE_PATH)/ldap.$(BASE_DOMAIN)
 HOME_CA = $(BASE_PATH)/homeCA
 
 # install :  trust anchor --store certs/homeCA.pem
@@ -47,5 +48,9 @@ k8s: $(HOME_CA).pem $(WILDCARD).key
 
 clean:
 	rm -rf $(BASE_PATH)/*
+
+clean-k8s:
+	kubectl delete configmaps ca-pemstore
+	kubectl delete secrets wildcard-tls-cert
 
 .PHONY: all clean k8s

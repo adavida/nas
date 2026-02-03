@@ -35,6 +35,8 @@ spec:
               configMapKeyRef:
                 name: {{ .Release.Name }}-nextcloud-database-configmap
                 key: POSTGRES_PASSWORD
+          - name: BASE_HOST_NAME
+            value: {{ .Values.baseHostname }}
         volumeMounts:
           - mountPath: "/var/www/html"
             name: main-storage
@@ -43,8 +45,8 @@ spec:
             name: main-storage
             subPath: ndata
           - name: ca-pemstore
-            mountPath: /etc/ssl/certs/perso.pem
-            subPath: homeCA.pem
+            mountPath: /etc/ssl/certs/perso.crt
+            subPath: rootCA.pem
             readOnly: true 
           - name: nextcloud-config
             mountPath:  /init.sh

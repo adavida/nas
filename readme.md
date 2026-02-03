@@ -3,6 +3,10 @@
 # active configuration
 nixos-rebuild switch --flake /etc/nixos#homenastest
 
+# create secrets and push into k8s cluster
+cd /etc/nixos/secrets/
+make k8s
+
 # connect to vpn
 tailscale up
 
