@@ -41,7 +41,7 @@ in
           errors
           health
           ready
-          forward . /etc/resolv.conf
+          forward . ${vars.dns_ip} 
           cache 30
           loop
           reload

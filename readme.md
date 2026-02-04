@@ -8,6 +8,9 @@ cd /etc/nixos/secrets/
 make BASE_DOMAIN=nas.local
 make BASE_DOMAIN=nas.local k8s
 
+scp root@ssh.nas.local:/etc/nixos/secrets/rootCA.pem rootCA.pem
+sudo cp rootCA.pem /etc/nixos/rootCA.pem
+
 # connect to vpn
 tailscale up
 
