@@ -56,7 +56,7 @@ in
 
           # your admin account, do not use writeText on a production system
           olcRootDN = "cn=admin,${vars.base_dn}";
-          olcRootPW.path="${secrets}/olcRootPW.sha"; 
+          olcRootPW.path = "${secrets}/olcRootPW.sha";
 
           olcAccess = [
             # custom access rules for userPassword attributes
