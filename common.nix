@@ -8,10 +8,10 @@
 }:
 let
   nixos-update = pkgs.writeShellScriptBin "nixos-update" ''
-    git -C /etc/nixos pull && \
+    ${pkgs.git}/bin/git -C /etc/nixos pull && \
     nix flake update --flake /etc/nixos && \
     nixos-rebuild switch --flake /etc/nixos && \
-    git -C /etc/nixos add flake.lock && sudo git -C /etc/nixos commit -m "update" && sudo git -C /etc/nixos push
+    ${pkgs.git}/bin/git -C /etc/nixos add flake.lock && sudo ${pkgs.git}/bin/git -C /etc/nixos commit -m "update" && sudo ${pkgs.git}/bin/git -C /etc/nixos push
   '';
 in
 {
@@ -29,7 +29,7 @@ in
     after = [ "network-online.target" ];
     wants = [ "network-online.target" ];
     serviceConfig = {
-      ExecStart = "${nixos-update}";
+      ExecStart = "${nixos-update}/bin/nixos-update";
       Type = "oneshot";
       RemainAfterExit = true;
     };
