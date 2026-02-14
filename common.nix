@@ -6,6 +6,14 @@
   ssh_borg_key,
   ...
 }:
+let
+  nixos-update = pkgs.writeShellScriptBin "nixos-update" ''
+    git -C /etc/nixos pull && \
+    nix flake update --flake /etc/nixos && \
+    nixos-rebuild switch --flake /etc/nixos && \
+    git -C /etc/nixos add flake.lock && sudo git -C /etc/nixos commit -m "update" && sudo git -C /etc/nixos push
+  '';
+in
 {
 
   services.tailscale.enable = true;
@@ -14,6 +22,17 @@
     flake = inputs.self.outPath;
     randomizedDelaySec = "45min";
     allowReboot = true;
+  };
+
+  systemd.services.nixos-update = {
+    description = "Lancer mon script après connexion au réseau";
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+    serviceConfig = {
+      ExecStart = "${nixos-update}";
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
   };
 
   nix = {
