@@ -1,5 +1,9 @@
 #!/bin/bash
 
+function occ {
+    su -s /bin/bash -c "/var/www/html/occ '$@'"  www-data;
+}
+  
 /usr/sbin/update-ca-certificates --fresh
 if [ -e /var/www/html/occ ]; then
   echo "<?php
@@ -14,15 +18,17 @@ if [ -e /var/www/html/occ ]; then
 
    SECRET=$(cat /secret)
    echo $UID
-   su -s /bin/bash -c '/var/www/html/occ app:install user_oidc' www-data
-   su -s /bin/bash -c '/var/www/html/occ user_oidc:provider autlelia --clientid=nextcloud  --clientsecret='"$SECRET"' --endsessionendpointuri=https://nc.'${BASE_HOST_NAME}'/ --scope="openid email profile groups" --discoveryuri=https://authelia.'${BASE_HOST_NAME}'/.well-known/openid-configuration --unique-uid=0 --group-provisioning=1 --mapping-uid=email' www-data
-   su -s /bin/bash -c '/var/www/html/occ config:app:set --value=0 user_oidc allow_multiple_user_backends' www-data
+   occ app:install user_oidc
+   occ 'user_oidc:provider autlelia --clientid=nextcloud  --clientsecret="$SECRET" --endsessionendpointuri=https://nc.${BASE_HOST_NAME}/ --scope="openid email profile groups" --discoveryuri=https://authelia.${BASE_HOST_NAME}'/.well-known/openid-configuration --unique-uid=0 --group-provisioning=1 --mapping-uid=email'
+   occ config:app:set --value=0 user_oidc allow_multiple_user_backends
 
-   su -s /bin/bash -c '/var/www/html/occ config:app:set --value=yes files_antivirus enabled' www-data
-   su -s /bin/bash -c '/var/www/html/occ config:app:set --value=daemon files_antivirus av_mode' www-data
-   su -s /bin/bash -c '/var/www/html/occ config:app:set --value=-1 files_antivirus av_stream_max_length' www-data
-   su -s /bin/bash -c '/var/www/html/occ config:app:set --value=app-clamav-service files_antivirus av_host' www-data
-   su -s /bin/bash -c '/var/www/html/occ config:app:set --value=3310 files_antivirus av_port' www-data
+   occ app:update --all
+
+   occ config:app:set --value=yes files_antivirus enabled
+   occ config:app:set --value=daemon files_antivirus av_mode
+   occ config:app:set --value=-1 files_antivirus av_stream_max_length
+   occ config:app:set --value=app-clamav-service files_antivirus av_host
+   occ config:app:set --value=3310 files_antivirus av_port 
 else
   echo "Le fichier /var/www/html/occ n'existe pas."
 fi

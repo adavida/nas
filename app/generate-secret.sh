@@ -29,11 +29,15 @@ BASE_PATH_KEY="${BASE_PATH}/key"
 mkdir -p "$BASE_PATH_SECRETS/authelia"
 mkdir -p "$BASE_PATH_KEY/authelia"
 
+mkdir -p "$BASE_PATH_SECRETS/nextcloud"
+
 generate_random_string  64 > "$BASE_PATH_SECRETS/authelia/jwt_secret"
 generate_random_string  64 > "$BASE_PATH_SECRETS/authelia/session_secret"
 generate_random_string  64 > "$BASE_PATH_SECRETS/authelia/oidc_hmac_secret"
 generate_random_string  64 > "$BASE_PATH_SECRETS/authelia/oicd_nextcloud_secret"
 generate_random_string  64 > "$BASE_PATH_SECRETS/authelia/storage_encryption_key"
+
+generate_random_string  64 > "$BASE_PATH_SECRETS/nextcloud/postgress_password"
 
 ssh root@ssh."${CN}" -C 'cat /etc/nixos/secrets/olcRootPW'  > "$BASE_PATH_SECRETS/authelia/ldap_password"
 
