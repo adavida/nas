@@ -21,17 +21,17 @@
   networking.hostName = "homenastest"; # Define your hostname.
 
   networking.interfaces = {
-    enp1s0 = {
-      ipv4 = {
-        addresses = [
-          {
-            address = vars.ip;
-            prefixLength = 24;
-          }
-        ];
-      };
-      useDHCP = true;
-    };
+    # enp1s0 = {
+    #   ipv4 = {
+    #     addresses = [
+    #       {
+    #         address = vars.ip;
+    #         prefixLength = 24;
+    #       }
+    #     ];
+    #   };
+    #   useDHCP = true;
+    # };
   };
   services.openssh = {
     enable = true;
@@ -39,4 +39,6 @@
       PermitRootLogin = "yes";
     };
   };
+  users.users.david.password = "";
+  security.sudo.wheelNeedsPassword = false;
 }
