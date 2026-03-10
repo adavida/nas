@@ -10,12 +10,18 @@
   services.tailscale.enable = true;
   system.autoUpgrade = {
     enable = true;
+    dates = "hourly";
     flake = "github:adavida/nas";
     randomizedDelaySec = "5min";
     allowReboot = true;
     upgrade = false;
     persistent = true;
     runGarbageCollection = true;
+  };
+
+  systemd.services.nixos-upgrade = {
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
   };
 
   nix = {
