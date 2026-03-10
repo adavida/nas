@@ -11,6 +11,9 @@ make BASE_DOMAIN=nas.local k8s
 scp root@ssh.nas.local:/etc/nixos/secrets/rootCA.pem rootCA.pem
 sudo cp rootCA.pem /etc/nixos/rootCA.pem
 
+# get certficate
+ssh david@ssg.nas-test.local -C 'cat /etc/rancher/k3s/k3s.yaml' | sed 's/127.0.0.1/{server_ip}/g' > ~/.kube/k3s-test.yaml
+
 # connect to vpn
 tailscale up
 
@@ -31,7 +34,7 @@ helm upgrade --install app app --values ./app/values.yaml
 ```
 # add ssh key
 ssh-keygen -t ed25519 -C "david.adler@outlook.com"
-cat ~/.ssh/id_ed25519.puby
+cat ~/.ssh/id_ed25519.pub
 ```
 
 
