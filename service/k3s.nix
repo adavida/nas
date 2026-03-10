@@ -18,6 +18,7 @@
     extraFlags = [
       "--write-kubeconfig-mode 644"
       "--disable=traefik"
+      "--tls-san ${vars.ip}"
     ];
     # manifests."ingress" = {
     #   source = ./manifest/ingress.yaml;

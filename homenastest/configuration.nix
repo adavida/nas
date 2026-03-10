@@ -39,6 +39,11 @@
       PermitRootLogin = "yes";
     };
   };
-  users.users.david.password = "";
+  users.users.david = {
+    password = "";
+    openssh.authorizedKeys.keyFiles = [
+      ../secrets/id_ed25519.pub
+    ];
+  };
   security.sudo.wheelNeedsPassword = false;
 }

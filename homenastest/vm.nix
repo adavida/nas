@@ -26,15 +26,9 @@ in
       memorySize = 2048;
       cores = 4;
       graphics = false;
-      forwardPorts = [
-        {
-          from = "host";
-          host.port = 2221;
-          guest.port = 22;
-        }
-      ];
+      forwardPorts = [ ];
       sharedDirectories = {
-        secret = {
+        src = {
           source = outPath + "";
           target = src;
         };
