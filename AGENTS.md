@@ -5,9 +5,24 @@ This is a NixOS flake-based home NAS configuration repository. It manages system
 ## Build/Lint/Test Commands
 
 ### Evaluating Configuration
-```bashs
+```bash
 # Validate the entire flake
 nix flake check
+
+# Evaluate a specific NixOS configuration without building
+nix eval .#nixosConfigurations.homenas.config.system.build.toplevel
+
+# Evaluate with full trace for debugging
+nix eval --show-trace .#nixosConfigurations.homenas.config.system.build.toplevel
+```
+
+### Testing with VM
+```bash
+# Build and run the test VM (homenastest configuration)
+nix run .#
+
+# Inside VM, initialize secrets:
+init-vm
 ```
 
 ### Deploying Changes
@@ -18,6 +33,8 @@ sudo nixos-rebuild switch --flake .#homenas
 # Switch to test configuration
 sudo nixos-rebuild switch --flake .#homenastest
 
+# Build without switching (dry-run)
+nixos-rebuild build --flake .#homenas
 ```
 
 ### Formatting
@@ -25,6 +42,8 @@ sudo nixos-rebuild switch --flake .#homenastest
 # Format all Nix files (uses nixfmt-tree as defined in flake)
 nix fmt
 
+# Check formatting without modifying
+nix fmt -- --check
 ```
 
 ### Secrets Management
@@ -35,6 +54,9 @@ make BASE_DOMAIN=nas.local
 
 # Push secrets to k8s cluster
 make BASE_DOMAIN=nas.local k8s
+
+# Clean generated secrets
+make clean
 ```
 
 ### Kubernetes App Deployment
@@ -42,8 +64,14 @@ make BASE_DOMAIN=nas.local k8s
 # Deploy/update apps via Helm
 helm upgrade --install app app --values ./app/values.yaml
 
+# Deploy to test environment
+helm upgrade --install app app --values ./app/values-test.yaml
+
 # Generate app secrets
 bash app/generate-secret.sh
+
+# Run Nextcloud maintenance commands
+kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ maintenance:repair' www-data
 ```
 
 ## Code Style Guidelines
@@ -131,22 +159,27 @@ Each service module should follow this pattern:
 - Use the `secrets/` directory with appropriate permissions (0600 for sensitive files)
 - Reference secrets via the `secrets` module argument which points to `/etc/nixos/secrets`
 - Template files in `app/secrets/test/` use placeholder values for development
+- Always regenerate secrets after changing domain: `make BASE_DOMAIN=<domain>`
 
 ### Kubernetes/Helm
 - Templates go in `app/templates/`
 - Values in `app/values.yaml` (base) and `app/values-test.yaml` (test environment)
 - Use ConfigMaps for non-sensitive configuration
-- Use Secrets for sensitive data
+- Use Secrets for sensitive data (mounted at `/app/secrets` in containers)
+- Helm release name is typically `app`
 
 ### Testing Changes
 1. Always evaluate the configuration before deploying: `nix eval --file flake.nix nixosConfigurations.homenas.config.system.build.toplevel`
 2. Test on `homenastest` first if available
 3. Run `nix flake check` to validate the flake structure
+4. Use `nix run .` to test in a VM before deploying to production
 
 ### Common Issues
 - Forgetting the `...` in module arguments causes "unexpected attribute" errors
 - Relative paths in imports must start with `./` or `../`
 - Secret files must exist before `nixos-rebuild switch` - check they are in place
+- Certificate paths must be absolute when referencing `${secrets}/certs/`
+- After changing `vars.nix`, rebuild both the system and regenerate secrets
 
 ### Additional Resources
 ```bash
