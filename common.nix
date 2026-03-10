@@ -6,33 +6,16 @@
   ssh_borg_key,
   ...
 }:
-let
-  nixos-update = pkgs.writeShellScriptBin "nixos-update" ''
-    ${pkgs.git}/bin/git -C /etc/nixos pull && \
-    nix flake update --flake /etc/nixos && \
-    nixos-rebuild switch --flake /etc/nixos && \
-    ${pkgs.git}/bin/git -C /etc/nixos add flake.lock && sudo ${pkgs.git}/bin/git -C /etc/nixos commit -m "update" && sudo ${pkgs.git}/bin/git -C /etc/nixos push
-  '';
-in
 {
-
   services.tailscale.enable = true;
   system.autoUpgrade = {
     enable = true;
-    flake = inputs.self.outPath;
-    randomizedDelaySec = "45min";
+    flake = "github:adavida/nas";
+    randomizedDelaySec = "5min";
     allowReboot = true;
-  };
-
-  systemd.services.nixos-update = {
-    description = "Lancer mon script après connexion au réseau";
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
-    serviceConfig = {
-      ExecStart = "${nixos-update}/bin/nixos-update";
-      Type = "oneshot";
-      RemainAfterExit = true;
-    };
+    upgrade = false;
+    persistent = true;
+    runGarbageCollection = true;
   };
 
   nix = {
