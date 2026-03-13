@@ -9,7 +9,7 @@
 {
   services.tailscale.enable = true;
   system.autoUpgrade = {
-    enable = true;
+    enable = false;
     dates = "hourly";
     flake = "github:adavida/nas";
     randomizedDelaySec = "5min";
