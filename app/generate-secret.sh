@@ -13,13 +13,24 @@ generate_file_if_no_exit() {
     fi
 }
 
+ENV="${1:-test}"
 
+case "$ENV" in
+    prod)
+        BASE_PATH="$(dirname "$0")/secrets/prod"
+        CN="nas.local"
+        ;;
+    test)
+        BASE_PATH="$(dirname "$0")/secrets/test"
+        CN="nas-test.local"
+        ;;
+    *)
+        echo "Usage: $0 [test|prod]"
+        exit 1
+        ;;
+esac
 
-# BASE_PATH="$(dirname "$0")/secrets/test"
-# CN="nas-test.local"
-BASE_PATH="$(dirname "$0")/secrets/prod"
-CN="nas.local"
-
+echo "environnement: ${ENV}"
 echo "base path : ${BASE_PATH}"
 echo "cn : ${CN}"
 

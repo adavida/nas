@@ -45,5 +45,10 @@
       ../secrets/id_ed25519.pub
     ];
   };
+  users.users.root = {
+    openssh.authorizedKeys.keyFiles = [
+      ../secrets/id_ed25519.pub
+    ];
+  };
   security.sudo.wheelNeedsPassword = false;
 }
