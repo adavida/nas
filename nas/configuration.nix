@@ -19,14 +19,14 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "homenas"; # Define your hostname.
-  networking.nameservers = [ vars.ip ];
+  networking.nameservers = [ vars.ip_local ];
 
   networking.interfaces = {
     enp1s0 = {
       ipv4 = {
         addresses = [
           {
-            address = vars.ip;
+            address = vars.ip_local;
             prefixLength = 24;
           }
         ];
