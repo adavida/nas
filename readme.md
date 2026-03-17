@@ -12,7 +12,7 @@ scp root@ssh.nas.local:/etc/nixos/secrets/rootCA.pem rootCA.pem
 sudo cp rootCA.pem /etc/nixos/rootCA.pem
 
 # get certficate
-ssh david@ssg.nas-test.local -C 'cat /etc/rancher/k3s/k3s.yaml' | sed 's/127.0.0.1/{server_ip}/g' > ~/.kube/k3s-test.yaml
+ssh david@ssh.nas-test.local -C 'print-k3s' > ~/.kube/k3s-test.yaml
 
 # connect to vpn
 tailscale up
