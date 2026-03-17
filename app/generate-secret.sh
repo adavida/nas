@@ -30,6 +30,7 @@ case "$ENV" in
         ;;
 esac
 
+
 echo "environnement: ${ENV}"
 echo "base path : ${BASE_PATH}"
 echo "cn : ${CN}"
@@ -50,7 +51,7 @@ generate_random_string  64 > "$BASE_PATH_SECRETS/authelia/storage_encryption_key
 
 generate_random_string  64 > "$BASE_PATH_SECRETS/nextcloud/postgress_password"
 
-ssh root@ssh."${CN}" -C 'cat /etc/nixos/secrets/olcRootPW'  > "$BASE_PATH_SECRETS/authelia/ldap_password"
+ssh -p 220 root@ssh."${CN}" -C 'cat /etc/nixos/secrets/olcRootPW'  > "$BASE_PATH_SECRETS/authelia/ldap_password"
 
 openssl req -x509 -nodes -newkey rsa:2048 -keyout "$BASE_PATH_KEY/authelia/private.pem" -out "$BASE_PATH_KEY/authelia/public.crt" -sha256 -days 365 -subj "/CN=$CN"
 openssl genpkey -algorithm RSA -out "$BASE_PATH_KEY/authelia/private_key.pem" -pkeyopt rsa_keygen_bits:2048

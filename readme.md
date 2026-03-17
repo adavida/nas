@@ -8,11 +8,11 @@ cd /etc/nixos/secrets/
 make BASE_DOMAIN=nas.local
 make BASE_DOMAIN=nas.local k8s
 
-scp root@ssh.nas.local:/etc/nixos/secrets/rootCA.pem rootCA.pem
+scp -p 22- root@ssh.nas.local:/etc/nixos/secrets/rootCA.pem rootCA.pem
 sudo cp rootCA.pem /etc/nixos/rootCA.pem
 
 # get certficate
-ssh david@ssh.nas-test.local -C 'print-k3s' > ~/.kube/k3s-test.yaml
+ssh -p 220 root david@ssh.nas-test.local -C 'print-k3s' > ~/.kube/k3s-test.yaml
 
 # connect to vpn
 tailscale up
@@ -23,7 +23,7 @@ helm repo update
 helm install my-ingress ingress-nginx/ingress-nginx
 
 # configMap  of secret
-ssh root@ssh.nas.local -C 'kubectl create configmap ca-pemstore --from-file=/etc/nixos/secrets/certs/homeCA.pem'
+ssh -p 220 root@ssh.nas.local -C 'kubectl create configmap ca-pemstore --from-file=/etc/nixos/secrets/certs/homeCA.pem'
 
 bash app/generate-secret.sh
 

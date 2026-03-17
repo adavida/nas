@@ -99,7 +99,10 @@
     tree
 
   ];
-  services.openssh.enable = true;
+  services.openssh = {
+    ports = [ 220 ];
+    enable = true;
+  };
 
   system.stateVersion = "25.11"; # Did you read the comment?
 
