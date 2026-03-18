@@ -21,7 +21,9 @@ let
     make BASE_DOMAIN=${vars.base_host} k8s
     tailscale up
     ldapadd -x -w $(cat /etc/nixos/secrets/olcRootPW)  -H ldapi:/// -D "cn=admin,dc=nas-test,dc=local" -f /src/users.ldap
-    mkdir /data/ssd/nc
+    mkdir -p /data/ssd/nc
+    tailscale ip -4
+    halt -p
   '';
   print-k3s = pkgs.writeShellScriptBin "print-k3s" "cat /etc/rancher/k3s/k3s.yaml | sed 's/127.0.0.1/${vars.ip}/g'";
 in
