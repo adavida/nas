@@ -18,7 +18,7 @@ access_control:
       policy: one_factor
 authentication_backend:
   ldap:
-    address: 'ldaps://{{ .Values.serverIp }}'
+    address: "ldaps://{{  (.Files.Get (printf "%s/ip" .Values.configPath)) }}"
     implementation: 'custom'
     timeout: '5s'
     start_tls: false
