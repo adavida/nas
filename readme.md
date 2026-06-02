@@ -42,5 +42,6 @@ occ maintenance
 ```
 kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ maintenance:repair' www-data
 kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ security:bruteforce:reset' www-data
-
+kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ upgrade' www-data
+kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ maintenance:mode --off' www-data
 ```
