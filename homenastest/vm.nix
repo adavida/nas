@@ -28,7 +28,10 @@ let
   print-k3s = pkgs.writeShellScriptBin "print-k3s" "cat /etc/rancher/k3s/k3s.yaml | sed 's/127.0.0.1/${vars.ip}/g'";
 in
 {
-  environment.systemPackages = [ init-vm print-k3s ];
+  environment.systemPackages = [
+    init-vm
+    print-k3s
+  ];
   virtualisation.vmVariant = {
     virtualisation = {
       memorySize = 16384;
