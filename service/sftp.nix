@@ -114,6 +114,24 @@
             PermitRootLogin = "no"; # "yes", "without-password", "prohibit-password", "forced-commands-only", "no"
             ForceCommand = "internal-sftp";
             ChrootDirectory = "/sftp/%u";
+            MaxAuthTries = 3;
+            LoginGraceTime = 30;
+            MaxStartups = "3:50:10";
+          };
+        };
+
+        services.fail2ban = {
+          enable = true;
+          maxretry = 3;
+          bantime = "1h";
+          bantime-increment.enable = true;
+          jails.sshd.settings = {
+            enabled = true;
+            mode = "aggressive";
+            port = "222";
+            maxretry = 3;
+            findtime = "10m";
+            bantime = "1h";
           };
         };
         networking = {

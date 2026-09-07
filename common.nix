@@ -102,6 +102,28 @@
   services.openssh = {
     ports = [ 220 ];
     enable = true;
+    settings = {
+      PermitRootLogin = lib.mkDefault "no";
+      PasswordAuthentication = lib.mkDefault false;
+      KbdInteractiveAuthentication = lib.mkDefault false;
+      MaxAuthTries = lib.mkDefault 3;
+      LoginGraceTime = lib.mkDefault 30;
+    };
+  };
+
+  services.fail2ban = {
+    enable = true;
+    maxretry = 3;
+    bantime = "1h";
+    bantime-increment.enable = true;
+    jails.sshd.settings = {
+      enabled = true;
+      mode = "aggressive";
+      port = "220,222";
+      maxretry = 3;
+      findtime = "10m";
+      bantime = "1h";
+    };
   };
 
   security.pki.certificates = [ vars.ca ];
