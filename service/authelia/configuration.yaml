@@ -1,5 +1,5 @@
 server:
-  address: 'tcp://:9091'
+  address: 'tcp://127.0.0.1:9091'
 
 log:
   level: 'info'
