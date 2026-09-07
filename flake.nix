@@ -15,18 +15,30 @@
       system = "x86_64-linux";
       commonModules = [
         ./common.nix
+        ./service/authelia.nix
+        ./service/clamav.nix
+        ./service/collabora.nix
         ./service/coredns.nix
+        ./service/jellyfin.nix
+        ./service/nextcloud.nix
+        ./service/nginx.nix
         ./service/openldap.nix
         ./service/sftp.nix
-        ./service/k3s.nix
         {
           _module.args = {
+            path = {
+              secrets = "/etc/nixos/secrets";
+              keys = "/etc/nixos/key";
+            };
             secrets = "/etc/nixos/secrets";
             inputs = inputs;
             outPath = self;
           };
         }
       ];
+      vars = {
+        clamav_socket = "/run/clamav/clamd.ctl";
+      };
     in
     {
       nixosConfigurations = {
@@ -35,7 +47,7 @@
             ./nas/configuration.nix
             ./nas/hardware-configuration.nix
             {
-              _module.args.vars = import ./nas/vars.nix;
+              _module.args.vars = import ./nas/vars.nix // vars;
             }
           ];
         };
@@ -45,7 +57,7 @@
             ./homenastest/hardware-configuration.nix
             ./homenastest/vm.nix
             {
-              _module.args.vars = import ./homenastest/vars.nix;
+              _module.args.vars = import ./homenastest/vars.nix // vars;
             }
           ];
         };

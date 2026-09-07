@@ -1,6 +1,6 @@
 # AGENTS.md - Guidelines for Agentic Coding in this Repository
 
-This is a NixOS flake-based home NAS configuration repository. It manages system configuration, services (k3s, OpenLDAP, SFTP, CoreDNS), and Kubernetes app deployments.
+This is a NixOS flake-based home NAS configuration repository. It manages system configuration and services (CoreDNS, OpenLDAP, SFTP, nginx, Authelia, Nextcloud).
 
 ## Build/Lint/Test Commands
 
@@ -52,26 +52,8 @@ nix fmt -- --check
 cd secrets/
 make BASE_DOMAIN=nas.local
 
-# Push secrets to k8s cluster
-make BASE_DOMAIN=nas.local k8s
-
 # Clean generated secrets
 make clean
-```
-
-### Kubernetes App Deployment
-```bash
-# Deploy/update apps via Helm
-helm upgrade --install app app --values ./app/values.yaml
-
-# Deploy to test environment
-helm upgrade --install app app --values ./app/values-test.yaml
-
-# Generate app secrets
-bash app/generate-secret.sh
-
-# Run Nextcloud maintenance commands
-kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ maintenance:repair' www-data
 ```
 
 ## Code Style Guidelines
@@ -120,7 +102,7 @@ kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ maintena
 
 #### Naming Conventions
 - File names: kebab-case (e.g., `openldap.nix`)
-- Variable names: camelCase (e.g., `baseHost`, `dnsIp`)
+- Variable names in `vars.nix`: snake_case (e.g., `base_host`, `dns_ip`)
 - Attribute names: camelCase for NixOS options (e.g., `enable`, `allowedTCPPorts`)
 - Nixpkgs packages: lowercase (e.g., `pkgs.openssl`, `pkgs.git`)
 
@@ -158,18 +140,10 @@ Each service module should follow this pattern:
 - Never commit actual secrets to the repository
 - Use the `secrets/` directory with appropriate permissions (0600 for sensitive files)
 - Reference secrets via the `secrets` module argument which points to `/etc/nixos/secrets`
-- Template files in `app/secrets/test/` use placeholder values for development
 - Always regenerate secrets after changing domain: `make BASE_DOMAIN=<domain>`
 
-### Kubernetes/Helm
-- Templates go in `app/templates/`
-- Values in `app/values.yaml` (base) and `app/values-test.yaml` (test environment)
-- Use ConfigMaps for non-sensitive configuration
-- Use Secrets for sensitive data (mounted at `/app/secrets` in containers)
-- Helm release name is typically `app`
-
 ### Testing Changes
-1. Always evaluate the configuration before deploying: `nix eval --file flake.nix nixosConfigurations.homenas.config.system.build.toplevel`
+1. Always evaluate the configuration before deploying: `nix eval .#nixosConfigurations.homenas.config.system.build.toplevel`
 2. Test on `homenastest` first if available
 3. Run `nix flake check` to validate the flake structure
 4. Use `nix run .` to test in a VM before deploying to production

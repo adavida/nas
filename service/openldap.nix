@@ -29,10 +29,10 @@ in
         olcTLSCACertificateFile = "${secrets}/certs/homeCA.crt";
         olcTLSCertificateFile = "${secrets}/certs/ldap.${vars.base_host}.crt";
         olcTLSCertificateKeyFile = "${secrets}/certs/ldap.${vars.base_host}.key";
-        olcTLSCipherSuite = "HIGH:MEDIUM:+3DES:+RC4:+aNULL";
+        olcTLSCipherSuite = "HIGH:!aNULL:!3DES:!RC4:!MD5";
         olcTLSCRLCheck = "none";
         olcTLSVerifyClient = "never";
-        olcTLSProtocolMin = "3.1";
+        olcTLSProtocolMin = "3.3";
       };
 
       children = {

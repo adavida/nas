@@ -43,7 +43,7 @@
     ];
 
     bindMounts = {
-      "/etc/nixos/secret/olcRootPW" = {
+      "${secrets}/olcRootPW" = {
         hostPath = "${secrets}/olcRootPW";
         mountPoint = "${secrets}/olcRootPW";
       };
@@ -79,7 +79,7 @@
             daemon.enable = true;
             base = "${vars.base_dn}";
             bind.distinguishedName = "cn=admin,${vars.base_dn}";
-            bind.passwordFile = "/etc/nixos/secret/olcRootPW";
+            bind.passwordFile = "${secrets}/olcRootPW";
             server = "ldapi:///";
             useTLS = true;
             extraConfig = ''

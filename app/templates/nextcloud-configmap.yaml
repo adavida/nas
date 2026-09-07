@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Release.Name }}-nextcloud-config
-data:
-{{ (.Files.Glob "data/nextcloud/*").AsConfig | indent 2 }}

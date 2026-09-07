@@ -4,34 +4,34 @@ server:
 log:
   level: 'info'
   format: 'json'
-  file_path: /config/authelia.log
+  file_path: '#VARSPATH#/authelia.log'
   keep_stdout: true
 totp:
-  issuer: '{{ .Values.baseHostname }}'
+  issuer: '#HOSTNAME#'
 
 access_control:
   default_policy: one_factor
   rules:
-    - domain: authelia.{{ .Values.baseHostname }}
+    - domain: authelia#HOSTNAME#.
       policy: bypass
-    - domain: '*.{{ .Values.baseHostname }}'
+    - domain: '*.#HOSTNAME#'
       policy: one_factor
 authentication_backend:
   ldap:
-    address: "ldaps://{{  (.Files.Get (printf "%s/ip" .Values.configPath)) }}"
+    address: 'ldaps://ldap.#HOSTNAME#'
     implementation: 'custom'
     timeout: '5s'
     start_tls: false
     tls:
-      server_name: 'ldap.{{ .Values.baseHostname }}'
+      server_name: 'ldap.#HOSTNAME#'
       skip_verify: true
       minimum_version: 'TLS1.2'
-    base_dn: '{{ .Values.baseDn }}'
+    base_dn: '#BASEDN#'
     additional_users_dn: 'OU=users'
     users_filter: '(&(|({username_attribute}={input})({mail_attribute}={input}))(objectClass=person))'
     additional_groups_dn: 'OU=groups'
-    groups_filter: '(&(member=UID={input},OU=users,{{ .Values.baseDn }})(objectClass=groupOfNames))'
-    user: 'CN=admin,{{ .Values.baseDn }}'
+    groups_filter: '(&(member=UID={input},OU=users,#BASEDN#)(objectClass=groupOfNames))'
+    user: 'CN=admin,#BASEDN#'
     attributes:
       # identifier: 'uid'
       distinguished_name: 'distinguishedName'
@@ -42,8 +42,8 @@ authentication_backend:
 session:
   cookies:
     - name: 'authelia_session'
-      domain: '{{ .Values.baseHostname }}'  # Should match whatever your root protected domain is
-      authelia_url: 'https://authelia.{{ .Values.baseHostname }}'
+      domain: '#HOSTNAME#'  # Should match whatever your root protected domain is
+      authelia_url: 'https://authelia.#HOSTNAME#'
       expiration: '1 hour'
       inactivity: '5 minutes'
 
@@ -54,19 +54,18 @@ regulation:
 
 storage:
   local:
-    path: '/config/db.sqlite3'      
+    path: '#VARSPATH#/db.sqlite3'      
 notifier:
   disable_startup_check: false
   filesystem:
-    filename: '/config/notification.txt'
+    filename: '#VARSPATH#/notification.txt'
 identity_providers:
   oidc:
     jwks:
       - key_id: 'nas'
         algorithm: 'RS256'
         use: 'sig'
-        key: |- {{ .Files.Get  (printf "%s/key/authelia/private_key.pem" .Values.secretsPath) | nindent 10 }}
-        certificate_chain: |- {{ .Files.Get  (printf "%s/secrets/authelia/certificate.pem" .Values.secretsPath) | nindent 10 }}
+        key: |- {{- fileContent "#PATHKEY#/authelia/private_key.pem" | nindent 10 }}
     enable_client_debug_messages: false
     minimum_parameter_entropy: 8
     enforce_pkce: 'public_clients_only'
@@ -93,20 +92,20 @@ identity_providers:
         - 'revocation'
         - 'introspection'
       allowed_origins:
-        - 'https://{{ .Values.baseHostname }}'
+        - 'https://#HOSTNAME#'
       allowed_origins_from_client_redirect_uris: false     
   ## The other portions of the mandatory OpenID Connect 1.0 configuration go here.
   ## See: https://www.authelia.com/c/oidc
     clients:
       - client_id: 'nextcloud'
         client_name: 'NextCloud'
-        client_secret: {{ .Files.Get  (printf "%s/secrets/authelia/oicd_nextcloud_secret" .Values.secretsPath) | quote }}
+        client_secret: {{ fileContent "#PATHSECRET#/authelia/oicd_nextcloud_secret" | trimAll "\n" | trim | quote }} 
         public: false
         authorization_policy: 'one_factor'
         require_pkce: true
         pkce_challenge_method: 'S256'
         redirect_uris:
-          - 'https://nc.{{ .Values.baseHostname }}/apps/user_oidc/code'
+          - 'https://nc.#HOSTNAME#/apps/user_oidc/code'
         scopes:
           - 'openid'
           - 'profile'

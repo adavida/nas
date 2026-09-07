@@ -20,7 +20,8 @@ in
     )
     ;
     @    IN  NS  ns1.${vars.base_host}.
-    ns   IN  A ${ip} 
+    ns   IN  A ${ip}
+    @    IN  A ${ip}
     *    IN  A ${ip}
   '';
 
@@ -41,7 +42,7 @@ in
           errors
           health
           ready
-          forward . ${vars.dns_ip} 
+          forward . ${vars.dns_ip}
           cache 30
           loop
           reload

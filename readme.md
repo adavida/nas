@@ -1,47 +1,56 @@
+# homeNAS
+
+Configuration NixOS (flake) d'un NAS domestique : CoreDNS, OpenLDAP, SFTP, Authelia, Nextcloud.
+
+## Tester (VM)
 
 ```bash
-# active configuration
-nixos-rebuild switch --flake /etc/nixos#homenas
-
-# create secrets and push into k8s cluster
-cd /etc/nixos/secrets/
-make BASE_DOMAIN=nas.local
-make BASE_DOMAIN=nas.local k8s
-
-scp -p 22- root@ssh.nas.local:/etc/nixos/secrets/rootCA.pem rootCA.pem
-sudo cp rootCA.pem /etc/nixos/rootCA.pem
-
-# get certficate
-ssh -p 220 root david@ssh.nas-test.local -C 'print-k3s' > ~/.kube/k3s-test.yaml
-
-# connect to vpn
-tailscale up
-
-# install ingress
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-helm install my-ingress ingress-nginx/ingress-nginx
-
-# configMap  of secret
-ssh -p 220 root@ssh.nas.local -C 'kubectl create configmap ca-pemstore --from-file=/etc/nixos/secrets/certs/homeCA.pem'
-
-bash app/generate-secret.sh
-
-#  Install/Update service 
-helm upgrade --install app app --values ./app/values.yaml
+nix run .          # démarre la VM homenastest
+init-vm            # dans la VM : génère les secrets et initialise
 ```
 
+## Déployer
+
+```bash
+sudo nixos-rebuild switch --flake /etc/nixos#homenas
 ```
-# add ssh key
-ssh-keygen -t ed25519 -C "david.adler@outlook.com"
-cat ~/.ssh/id_ed25519.pub
+
+## Secrets
+
+```bash
+# sur la machine cible (une fois)
+bash /etc/nixos/generate-secret.sh
+
+# certificats (CA maison, wildcard, ldap)
+cd secrets/ && make BASE_DOMAIN=nas.local
+```
+
+Le CA `secrets/certs/homeCA.pem` est installé comme ancre de confiance par la config.
+
+## Nextcloud (occ)
+
+```bash
+nextcloud-occ maintenance:repair
+nextcloud-occ security:bruteforce:reset
+nextcloud-occ upgrade
+nextcloud-occ maintenance:mode --off
 ```
 
 
-occ maintenance 
+## authelia
+
+```bash
+sudo authelia config template --config.experimental.filters=template --config=/etc/authelia_main.yml 
 ```
-kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ maintenance:repair' www-data
-kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ security:bruteforce:reset' www-data
-kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ upgrade' www-data
-kubectl exec -ti deployments/app-nextcloud -- su -s /bin/bash -c './occ maintenance:mode --off' www-data
+
+
+## ldap
+
+```bash
+## tester le serveur ldaps depuis la VM
+ldapsearch -H ldaps://ldap.nas-test.local -x -D "cn=admin,DC=nas-test,DC=local" -b "DC=nas-test,DC=local" -w $(cat /etc/nixos/secrets/olcRootPW)
 ```
+
+## PDQL
+sudo -u postgres psql -c "ALTER USER nextcloud WITH PASSWORD '$(sudo cat /etc/nixos/secrets/nextcloud/dbpass)';"
+PGPASSWORD=$(sudo cat /etc/nixos/secrets/nextcloud/dbpass) psql -h 127.0.0.1 -U nextcloud -d nextcloud -c "\dt"

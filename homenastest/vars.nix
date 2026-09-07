@@ -1,6 +1,7 @@
 {
-  ip = builtins.readFile ../app/config/test/ip;
+  ip = "100.119.212.89";
   base_host = "nas-test.local";
   base_dn = "DC=nas-test,DC=local";
   dns_ip = "192.168.1.254";
+  ca = (builtins.readFile ./homeCA.crt);
 }

@@ -19,18 +19,22 @@ $(HOME_CA).key:
 	PASS=$(OPENSSL rand -base64 64)
 	$(OPENSSL) genrsa -aes256 -out "$(HOME_CA).key" -passout "pass:$(PASS)" 4096
 	$(OPENSSL) rsa -in "$(HOME_CA).key" -out "$(HOME_CA).key" -passin "pass:$(PASS)"
+	chown nginx  $(HOME_CA).key
+
 
 $(HOME_CA).pem: $(HOME_CA).key
 	$(OPENSSL) req -x509 -new -days 3650 -key "$(HOME_CA).key" -out "$(HOME_CA).pem" -subj "/C=FR/ST=Alsace/L=Strasbourg/O=Nas/OU=Grouper/CN=$(BASE_DOMAIN)"
 
 $(HOME_CA).crt: $(HOME_CA).pem
 	$(OPENSSL) x509 -in $(HOME_CA).pem -inform PEM -out $(HOME_CA).crt
+	chown nginx  $(HOME_CA).crt
 
 
 $(WILDCARD).key: $(HOME_CA).crt $(HOME_CA).key
 	openssl genrsa -out $(WILDCARD).key 4096
 	openssl req -new -key $(WILDCARD).key -out $(WILDCARD).csr -subj "/C=FR/ST=Alsace/L=Strasbourg/O=Nas/OU=Grouper/CN=*.$(BASE_DOMAIN)"
 	openssl x509 -req -in $(WILDCARD).csr -CA $(HOME_CA).crt -CAkey $(HOME_CA).key -CAcreateserial -out $(WILDCARD).crt -days 500 -sha256
+	chown nginx $(WILDCARD).key $(WILDCARD).crt
 
 $(LDAP).key: $(HOME_CA).crt $(HOME_CA).key
 	openssl genrsa -out $(LDAP).key 4096
@@ -41,16 +45,7 @@ $(LDAP).key: $(HOME_CA).crt $(HOME_CA).key
 $(BASE_PATH):
 	mkdir -p $(BASE_PATH) 
 
-k8s: $(HOME_CA).pem $(WILDCARD).key
-	kubectl create secret tls wildcard-tls-cert --key=$(WILDCARD).key --cert=$(WILDCARD).crt
-	cp $(HOME_CA).pem rootCA.pem
-	kubectl create configmap ca-pemstore --from-file=rootCA.pem
-
 clean:
 	rm -rf $(BASE_PATH)/*
 
-clean-k8s:
-	kubectl delete configmaps ca-pemstore
-	kubectl delete secrets wildcard-tls-cert
-
-.PHONY: all clean k8s
+.PHONY: all clean 

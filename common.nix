@@ -1,10 +1,9 @@
 {
   config,
-  pkgs,
   inputs,
-  secret,
-  ssh_borg_key,
   lib,
+  pkgs,
+  vars,
   ...
 }:
 {
@@ -104,6 +103,8 @@
     ports = [ 220 ];
     enable = true;
   };
+
+  security.pki.certificates = [ vars.ca ];
 
   system.stateVersion = "26.05"; # Did you read the comment?
 

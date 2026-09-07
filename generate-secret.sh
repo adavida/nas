@@ -1,0 +1,73 @@
+#!/bin/bash
+
+generate_random_string() {
+    local n=$1
+    # openssl rand -hex $n
+    head /dev/urandom | tr -dc A-Za-z0-9 | head -c "$n"
+}
+
+function gen_secret() {
+    FICHIER="$1"
+    if [ ! -e "$FICHIER" ]; then
+        openssl rand -hex 64 > "$FICHIER"
+    fi
+}
+
+generate_file_if_no_exit() {
+    if [ ! -e $1 ]; then
+        touch "$1"
+        echo éditer $1
+    fi
+}
+
+ENV="${1:-test}"
+
+case "$ENV" in
+    prod)
+        CN="nas.local"
+        ;;
+    test)
+        CN="nas-test.local"
+        ;;
+    *)
+        echo "Usage: $0 [test|prod]"
+        exit 1
+        ;;
+esac
+
+
+BASE_PATH="/etc/nixos";
+echo "environnement: ${ENV}"
+echo "base path : ${BASE_PATH}"
+echo "cn : ${CN}"
+
+BASE_PATH_SECRETS="${BASE_PATH}/secrets"
+BASE_PATH_KEY="${BASE_PATH}/key"
+
+mkdir -p "$BASE_PATH_SECRETS/authelia"
+mkdir -p "$BASE_PATH_KEY/authelia"
+
+mkdir -p "$BASE_PATH_SECRETS/nextcloud"
+
+chown authelia-main:authelia-main "$BASE_PATH_SECRETS/authelia"
+chown authelia-main:authelia-main "$BASE_PATH_KEY/authelia"
+
+gen_secret "$BASE_PATH_SECRETS/authelia/jwt_secret"
+gen_secret "$BASE_PATH_SECRETS/authelia/session_secret"
+gen_secret "$BASE_PATH_SECRETS/authelia/oidc_hmac_secret"
+gen_secret "$BASE_PATH_SECRETS/authelia/oicd_nextcloud_secret"
+gen_secret "$BASE_PATH_SECRETS/authelia/storage_encryption_key"
+
+gen_secret "$BASE_PATH_SECRETS/olcRootPW"
+slappasswd -s $(cat "$BASE_PATH_SECRETS/olcRootPW") > "$BASE_PATH_SECRETS/olcRootPW.sha"
+
+gen_secret "$BASE_PATH_SECRETS/nextcloud/adminpass"
+gen_secret "$BASE_PATH_SECRETS/nextcloud/dbpass"
+
+# gen_secret "$BASE_PATH_SECRETS/nextcloud/postgress_password"
+
+# ssh -p 220 root@ssh."${CN}" -C 'cat /etc/nixos/secrets/olcRootPW'  > "$BASE_PATH_SECRETS/authelia/ldap_password"
+
+sudo -u authelia-main openssl req -x509 -nodes -newkey rsa:2048 -keyout "$BASE_PATH_KEY/authelia/private.pem" -out "$BASE_PATH_KEY/authelia/public.crt" -sha256 -days 365 -subj "/CN=$CN"
+sudo -u authelia-main openssl genpkey -algorithm RSA -out "$BASE_PATH_KEY/authelia/private_key.pem" -pkeyopt rsa_keygen_bits:2048
+sudo -u authelia-main openssl req -new -x509 -key "$BASE_PATH_KEY/authelia/private_key.pem" -out "$BASE_PATH_KEY/authelia/certificate.pem" -days 365 -subj "/CN=$CN"
