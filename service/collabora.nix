@@ -29,7 +29,7 @@
           "https://nc.${vars.base_host}"
         ];
       };
-      storage.ssl_verification = false;
+      storage.ssl_verification = true;
     };
     aliasGroups = [
       {
