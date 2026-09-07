@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   secrets,
   vars,
@@ -21,7 +22,11 @@
   # };
   fileSystems."/sftp/david/videos" = {
     device = "/data/2/videos";
-    options = [ "bind" ];
+    fsType = lib.mkDefault "none";
+    options = [
+      "bind"
+      "nofail"
+    ];
     depends = [ "/data/2/videos" ];
   };
 

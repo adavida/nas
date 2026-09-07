@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   secrets,
   vars,
@@ -9,7 +10,11 @@
   fileSystems."/srv/jellyfin/videos" = {
     device = "/data/2/videos";
     fsType = "none";
-    options = [ "bind" "ro" ];
+    options = [
+      "bind"
+      "ro"
+      "nofail"
+    ];
     depends = [ "/data/2" ];
   };
 
@@ -28,34 +33,39 @@
   ];
 
   systemd.services.jellyfin.serviceConfig = {
-    ProtectSystem = "strict";
-    ProtectHome = "tmpfs";
-    PrivateTmp = true;
-    PrivateMounts = true;
-    ProtectKernelTunables = true;
-    ProtectKernelModules = true;
-    ProtectControlGroups = true;
-    LockPersonality = true;
-    RestrictSUIDSGID = true;
-    NoNewPrivileges = true;
-
+    ProtectSystem = lib.mkForce "strict";
+    ProtectHome = lib.mkForce "tmpfs";
+    PrivateTmp = lib.mkForce true;
+    PrivateMounts = lib.mkForce true;
+    ProtectKernelTunables = lib.mkForce true;
+    ProtectKernelModules = lib.mkForce true;
+    ProtectControlGroups = lib.mkForce true;
+    LockPersonality = lib.mkForce true;
+    RestrictSUIDSGID = lib.mkForce true;
+    NoNewPrivileges = lib.mkForce true;
+    # ponytail: "-" prefix ignores missing dirs on homenastest (e.g. /var/log/jellyfin)
     ReadWritePaths = [
-      "/var/lib/jellyfin"
-      "/var/cache/jellyfin"
-      "/var/log/jellyfin"
+      "-/var/lib/jellyfin"
+      "-/var/cache/jellyfin"
+      "-/var/log/jellyfin"
     ];
-    BindReadOnlyPaths = [ "/srv/jellyfin" ];
+    BindReadOnlyPaths = [
+      "-/srv/jellyfin"
+    ];
     InaccessiblePaths = [
-      "/data"
-      "/srv/borg"
-      "/sftp"
-      "/home"
+      "-/data"
+      "-/srv/borg"
+      "-/sftp"
+      "-/home"
     ];
-    TemporaryFileSystem = "/:ro";
+    TemporaryFileSystem = lib.mkForce "/:ro";
+    LogsDirectory = "jellyfin";
+    CacheDirectory = "jellyfin";
+    StateDirectory = "jellyfin";
 
-    PrivateDevices = false;
-    DevicePolicy = "closed";
-    DeviceAllow = [
+    PrivateDevices = lib.mkForce false;
+    DevicePolicy = lib.mkForce "closed";
+    DeviceAllow = lib.mkForce [
       "/dev/dri/renderD128 rw"
       "/dev/dri/card0 rw"
       "char-drm rw"
