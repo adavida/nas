@@ -29,6 +29,9 @@
   boot.swraid.enable = true;
   services.lvm.boot.thin.enable = true;
 
+  fileSystems."/sftp/david/videos".fsType = "ext4";
+  fileSystems."/srv/borg/home".fsType = "btrfs";
+
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/78fba052-31c4-4417-8626-8759e0e6d110";
     fsType = "ext4";
@@ -58,7 +61,7 @@
 
   fileSystems."/data/2" = {
     device = "/dev/disk/by-uuid/13e22e4c-581c-449b-a1a3-b4ba6e853647";
-    # fsType = "ext4";
+    fsType = "ext4";
     options = [
       "defaults"
       "rw"
