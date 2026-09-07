@@ -19,6 +19,7 @@
         ./service/clamav.nix
         ./service/collabora.nix
         ./service/coredns.nix
+        ./service/immich.nix
         ./service/jellyfin.nix
         ./service/nextcloud.nix
         ./service/nginx.nix

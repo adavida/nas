@@ -119,3 +119,25 @@ identity_providers:
         grant_types:
           - 'authorization_code'
         access_token_signed_response_alg: 'none'
+      - client_id: 'immich'
+        client_name: 'Immich'
+        client_secret: {{ fileContent "#PATHSECRET#/authelia/oicd_immich_secret" | trimAll "\n" | trim | quote }}
+        public: false
+        authorization_policy: 'one_factor'
+        require_pkce: false
+        pkce_challenge_method: ''
+        redirect_uris:
+          - 'https://immich.#HOSTNAME#/auth/login'
+          - 'https://immich.#HOSTNAME#/api/oauth/mobile-redirect'
+          - 'app.immich:///oauth-callback'
+        scopes:
+          - 'openid'
+          - 'profile'
+          - 'email'
+        userinfo_signed_response_alg: 'none'
+        token_endpoint_auth_method: 'client_secret_post'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+        access_token_signed_response_alg: 'none'
