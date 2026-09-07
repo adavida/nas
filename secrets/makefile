@@ -13,7 +13,7 @@ HOME_CA = $(BASE_PATH)/homeCA
 # install :  trust anchor --store certs/homeCA.pem
 
 
-all:  $(BASE_PATH) $(HOME_CA).crt $(WILDCARD).key $(LDAP).key
+all:  $(BASE_PATH) $(HOME_CA).crt $(WILDCARD).key $(LDAP).key $(HOME_CA).p12
 
 $(HOME_CA).key:
 	PASS=$(OPENSSL rand -base64 64)
@@ -41,6 +41,10 @@ $(LDAP).key: $(HOME_CA).crt $(HOME_CA).key
 	openssl req -new -key $(LDAP).key -out $(LDAP).csr -subj "/C=FR/ST=Alsace/L=Strasbourg/O=Nas/OU=Grouper/CN=ldap.$(BASE_DOMAIN)"
 	openssl x509 -req -in $(LDAP).csr -CA $(HOME_CA).crt -CAkey $(HOME_CA).key -CAcreateserial -out $(LDAP).crt -days 500 -sha256
 	chown openldap:openldap $(LDAP).key $(LDAP).crt
+
+%.p12: %.key $(HOME_CA).crt
+	openssl pkcs12 -export -out $@ -inkey $*.key -in $*.crt -certfile $(HOME_CA).crt -passout pass:
+	chmod 600 $@
 
 $(BASE_PATH):
 	mkdir -p $(BASE_PATH) 
