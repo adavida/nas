@@ -16,6 +16,10 @@ access_control:
       policy: bypass
     - domain: '*.#HOSTNAME#'
       policy: one_factor
+definitions:
+  user_attributes:
+    immich_role:
+      expression: '"admin" in groups ? "admin" : "user"'
 authentication_backend:
   ldap:
     address: 'ldaps://ldap.#HOSTNAME#'
@@ -27,11 +31,11 @@ authentication_backend:
       skip_verify: true
       minimum_version: 'TLS1.2'
     base_dn: '#BASEDN#'
-    additional_users_dn: 'OU=users'
+    additional_users_dn: 'ou=users'
     users_filter: '(&(|({username_attribute}={input})({mail_attribute}={input}))(objectClass=person))'
-    additional_groups_dn: 'OU=groups'
-    groups_filter: '(&(member=UID={input},OU=users,#BASEDN#)(objectClass=groupOfNames))'
-    user: 'CN=admin,#BASEDN#'
+    additional_groups_dn: 'ou=groups'
+    groups_filter: '(&(member=cn={input},ou=users,#BASEDN#)(objectClass=groupOfNames))'
+    user: 'cn=admin,#BASEDN#'
     attributes:
       # identifier: 'uid'
       distinguished_name: 'distinguishedName'
@@ -93,7 +97,16 @@ identity_providers:
         - 'introspection'
       allowed_origins:
         - 'https://#HOSTNAME#'
-      allowed_origins_from_client_redirect_uris: false     
+      allowed_origins_from_client_redirect_uris: false
+    claims_policies:
+      immich_policy:
+        custom_claims:
+          immich_role:
+            attribute: 'immich_role'
+    scopes:
+      immich_scope:
+        claims:
+          - 'immich_role'
   ## The other portions of the mandatory OpenID Connect 1.0 configuration go here.
   ## See: https://www.authelia.com/c/oidc
     clients:
@@ -134,6 +147,9 @@ identity_providers:
           - 'openid'
           - 'profile'
           - 'email'
+          - 'groups'
+          - 'immich_scope'
+        claims_policy: 'immich_policy'
         userinfo_signed_response_alg: 'none'
         token_endpoint_auth_method: 'client_secret_post'
         response_types:

@@ -14,7 +14,7 @@ objectClass: organizationalUnit
 ou: groups
 
 # on crée le 1er utilisateur
-dn: cn=user,ou=Users,dc=nas-test,dc=local
+dn: cn=user,ou=users,dc=nas-test,dc=local
 objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: shadowAccount
@@ -35,10 +35,10 @@ userPassword: 1234
 dn: cn=users,ou=groups,dc=nas-test,dc=local
 objectClass: groupOfNames
 cn: users
-member: uid=user,ou=users,dc=nas-test,dc=local
+member: cn=user,ou=users,dc=nas-test,dc=local
 
 # on crée un groupe admin
 dn: cn=admin,ou=groups,dc=nas-test,dc=local
 objectClass: groupOfNames
 cn: admin
-member: uid=user,ou=users,dc=nas-test,dc=local
+member: cn=user,ou=users,dc=nas-test,dc=local

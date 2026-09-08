@@ -12,7 +12,7 @@
     enable = true;
     # host = "127.0.0.1";
     port = 2283;
-    mediaLocation = "/data/main/immich";
+    mediaLocation = "/data/ssd/immich";
     accelerationDevices = [
       "/dev/dri/renderD128"
     ];
@@ -24,10 +24,11 @@
         issuerUrl = "https://authelia.${vars.base_host}/.well-known/openid-configuration";
         clientId = "immich";
         clientSecret._secret = "${path.secrets}/authelia/oicd_immich_secret";
-        scope = "openid email profile";
+        scope = "openid email profile groups immich_scope";
         buttonText = "Login with Authelia";
         autoRegister = true;
         autoLaunch = true;
+        roleClaim = "immich_role";
       };
     };
   };

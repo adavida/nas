@@ -22,6 +22,8 @@ let
     mkdir -p /data/ssd/nc
     chmod 644 /etc/nixos/secrets/certs/homeCA.crt
     chmod 600 /etc/nixos/secrets/certs/homeCA.key
+    mkdir -p /data/ssd/immich
+    chown immich:immich /data/ssd/immich
     tailscale ip -4
 
     #halt -p
@@ -37,6 +39,7 @@ in
     pkgs.authelia
     pkgs.yq
     pkgs.jq
+    pkgs.tailspin
   ];
   virtualisation.vmVariant = {
     virtualisation = {
