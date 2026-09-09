@@ -82,6 +82,7 @@ make clean
 - Use `let` bindings for computed values before the config attribute set
 
 #### Attribute Sets
+- **Group and sort**: on every modified `*.nix` file, merge scattered dotted assignments sharing a prefix (e.g., `users.users.david`, `users.users.h` → `users.users = { david = ...; h = ...; }`) and sort keys alphabetically inside every attrset. See skill `nix-group-sort`.
 - Use the shorthand attribute set syntax `{ key = value; }` when possible
 - Use 2-space indentation
 - Always terminate entries with semicolons
