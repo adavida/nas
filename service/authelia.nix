@@ -42,7 +42,7 @@ in
       Restart = "always";
       RestartSec = "5s";
       StateDirectory = "authelia-main";
-      StateDirectoryMode = "0700";
+      StateDirectoryMode = "0750";
 
       # Security options:
       AmbientCapabilities = "";

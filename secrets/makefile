@@ -32,14 +32,14 @@ $(HOME_CA).crt: $(HOME_CA).pem
 
 $(WILDCARD).key: $(HOME_CA).crt $(HOME_CA).key
 	openssl genrsa -out $(WILDCARD).key 4096
-	openssl req -new -key $(WILDCARD).key -out $(WILDCARD).csr -subj "/C=FR/ST=Alsace/L=Strasbourg/O=Nas/OU=Grouper/CN=*.$(BASE_DOMAIN)"
-	openssl x509 -req -in $(WILDCARD).csr -CA $(HOME_CA).crt -CAkey $(HOME_CA).key -CAcreateserial -out $(WILDCARD).crt -days 500 -sha256
+	openssl req -new -key $(WILDCARD).key -out $(WILDCARD).csr -subj "/C=FR/ST=Alsace/L=Strasbourg/O=Nas/OU=Grouper/CN=*.$(BASE_DOMAIN)" -addext "subjectAltName=DNS:*.$(BASE_DOMAIN),DNS:$(BASE_DOMAIN)"
+	openssl x509 -req -in $(WILDCARD).csr -CA $(HOME_CA).crt -CAkey $(HOME_CA).key -CAcreateserial -out $(WILDCARD).crt -days 500 -sha256 -copy_extensions copy
 	chown nginx $(WILDCARD).key $(WILDCARD).crt
 
 $(LDAP).key: $(HOME_CA).crt $(HOME_CA).key
 	openssl genrsa -out $(LDAP).key 4096
-	openssl req -new -key $(LDAP).key -out $(LDAP).csr -subj "/C=FR/ST=Alsace/L=Strasbourg/O=Nas/OU=Grouper/CN=ldap.$(BASE_DOMAIN)"
-	openssl x509 -req -in $(LDAP).csr -CA $(HOME_CA).crt -CAkey $(HOME_CA).key -CAcreateserial -out $(LDAP).crt -days 500 -sha256
+	openssl req -new -key $(LDAP).key -out $(LDAP).csr -subj "/C=FR/ST=Alsace/L=Strasbourg/O=Nas/OU=Grouper/CN=ldap.$(BASE_DOMAIN)" -addext "subjectAltName=DNS:ldap.$(BASE_DOMAIN)"
+	openssl x509 -req -in $(LDAP).csr -CA $(HOME_CA).crt -CAkey $(HOME_CA).key -CAcreateserial -out $(LDAP).crt -days 500 -sha256 -copy_extensions copy
 	chown openldap:openldap $(LDAP).key $(LDAP).crt
 
 %.p12: %.key $(HOME_CA).crt
@@ -50,6 +50,10 @@ $(BASE_PATH):
 	mkdir -p $(BASE_PATH) 
 
 clean:
-	rm -rf $(BASE_PATH)/*
+	rm -rf $(WILDCARD)*
+	rm -rf $(LDAP)*
+
+clean-all:
+	rm -rf $(BASE_PATH)/
 
 .PHONY: all clean 
