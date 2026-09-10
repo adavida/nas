@@ -110,57 +110,65 @@
       };
     };
   };
-
+  
   users.users.grafana.extraGroups = [ "authelia-main" ];
 
   services.grafana = {
     enable = true;
+    provision = {
+      dashboards.settings.providers = [
+        {
+          name = "nas";
+          options.path = "/etc/nixos/grafana-dashboards";
+          type = "file";
+        }
+      ];
+      datasources.settings.datasources = [
+        {
+          access = "proxy";
+          isDefault = true;
+          name = "Loki";
+          type = "loki";
+          url = "http://127.0.0.1:3100";
+        }
+        {
+          access = "proxy";
+          name = "Prometheus";
+          type = "prometheus";
+          url = "http://127.0.0.1:9090";
+        }
+      ];
+    };
     settings = {
-      server = {
-        http_port = 3001;
-        http_addr = "127.0.0.1";
-        domain = "log.${vars.base_host}";
-        root_url = "https://log.${vars.base_host}/";
-      };
-      security.secret_key = "$__file{/etc/grafana-secret}";
+      auth.disable_login_form = true; # force Authelia seul, plus de admin/admin local (break-glass via allow_sign_up false déjà)
       "auth.generic_oauth" = {
-        enabled = true;
-        name = "Authelia";
-        allow_sign_up = true;
-        auto_login = true; # force Authelia : redirige /login vers Authelia sans passer par formulaire Grafana
-        scopes = "openid profile email groups grafana_scope";
-        auth_url = "https://authelia.${vars.base_host}/api/oidc/authorization";
-        token_url = "https://authelia.${vars.base_host}/api/oidc/token";
+        allowed_groups = "admin";
         api_url = "https://authelia.${vars.base_host}/api/oidc/userinfo";
+        auth_url = "https://authelia.${vars.base_host}/api/oidc/authorization";
+        auto_login = true; # force Authelia : redirige /login vers Authelia sans passer par formulaire Grafana
         client_id = "grafana";
         client_secret = "$__file{/etc/nixos/secrets/authelia/oicd_grafana_secret}";
-        login_attribute_path = "preferred_username";
-        groups_attribute_path = "groups";
-        name_attribute_path = "preferred_username";
         email_attribute_path = "email";
+        enabled = true;
+        groups_attribute_path = "groups";
+        login_attribute_path = "preferred_username";
+        name = "Authelia";
+        name_attribute_path = "preferred_username";
         role_attribute_path = "grafana_role";
-        allowed_groups = "admin";
-        use_pkce = true;
+        scopes = "openid profile email groups grafana_scope";
+        token_url = "https://authelia.${vars.base_host}/api/oidc/token";
         tls_skip_verify_insecure = true; # ponytail: wildcard sans SAN (secrets/makefile:35) → x509 legacy CN, skip jusqu'à rotation SAN
+        use_pkce = true;
       };
-      auth.disable_login_form = true; # force Authelia seul, plus de admin/admin local (break-glass via allow_sign_up false déjà)
+      security.secret_key = "$__file{/etc/grafana-secret}";
+      server = {
+        domain = "log.${vars.base_host}";
+        http_addr = "127.0.0.1";
+        http_port = 3001;
+        root_url = "https://log.${vars.base_host}/";
+      };
       users.allow_sign_up = false;
     };
-    provision.datasources.settings.datasources = [
-      {
-        name = "Loki";
-        type = "loki";
-        access = "proxy";
-        url = "http://127.0.0.1:3100";
-        isDefault = true;
-      }
-      {
-        name = "Prometheus";
-        type = "prometheus";
-        access = "proxy";
-        url = "http://127.0.0.1:9090";
-      }
-    ];
   };
 
   services.nginx.virtualHosts."log.${vars.base_host}" = {

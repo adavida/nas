@@ -9,27 +9,31 @@
   nixpkgs.config.permittedInsecurePackages = [ "immich-2.7.5" ];
 
   services.immich = {
-    enable = true;
-    # host = "127.0.0.1";
-    port = 2283;
-    mediaLocation = "/data/ssd/immich";
     accelerationDevices = [
       "/dev/dri/renderD128"
     ];
+    enable = true;
+    environment = {
+      IMMICH_API_METRICS_PORT = "8081";
+      IMMICH_MICROSERVICES_METRICS_PORT = "8082";
+      IMMICH_TELEMETRY_INCLUDE = "all";
+    };
+    mediaLocation = "/data/ssd/immich";
+    port = 2283;
     settings = {
-      server.externalDomain = "https://immich.${vars.base_host}";
-      passwordLogin.enabled = false;
       oauth = {
-        enabled = true;
-        issuerUrl = "https://authelia.${vars.base_host}/.well-known/openid-configuration";
+        autoLaunch = true;
+        autoRegister = true;
+        buttonText = "Login with Authelia";
         clientId = "immich";
         clientSecret._secret = "${path.secrets}/authelia/oicd_immich_secret";
-        scope = "openid email profile groups immich_scope";
-        buttonText = "Login with Authelia";
-        autoRegister = true;
-        autoLaunch = true;
+        enabled = true;
+        issuerUrl = "https://authelia.${vars.base_host}/.well-known/openid-configuration";
         roleClaim = "immich_role";
+        scope = "openid email profile groups immich_scope";
       };
+      passwordLogin.enabled = false;
+      server.externalDomain = "https://immich.${vars.base_host}";
     };
   };
 
