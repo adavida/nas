@@ -26,7 +26,7 @@
         ./service/nextcloud.nix
         ./service/nginx.nix
         ./service/openldap.nix
-        ./service/photoprism.nix
+        # ./service/photoprism.nix
         ./service/sftp.nix
         {
           _module.args = {
