@@ -110,7 +110,7 @@
       };
     };
   };
-  
+
   users.users.grafana.extraGroups = [ "authelia-main" ];
 
   services.grafana = {

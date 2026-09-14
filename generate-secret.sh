@@ -48,6 +48,7 @@ mkdir -p "$BASE_PATH_SECRETS/authelia"
 mkdir -p "$BASE_PATH_KEY/authelia"
 
 mkdir -p "$BASE_PATH_SECRETS/nextcloud"
+mkdir -p "$BASE_PATH_SECRETS/photoprism"
 
 chown authelia-main:authelia-main "$BASE_PATH_SECRETS/authelia"
 chown authelia-main:authelia-main "$BASE_PATH_KEY/authelia"
@@ -58,6 +59,7 @@ gen_secret "$BASE_PATH_SECRETS/authelia/oidc_hmac_secret"
 gen_secret "$BASE_PATH_SECRETS/authelia/oicd_nextcloud_secret"
 gen_secret "$BASE_PATH_SECRETS/authelia/oicd_immich_secret"
 gen_secret "$BASE_PATH_SECRETS/authelia/oicd_grafana_secret"
+gen_secret "$BASE_PATH_SECRETS/authelia/oicd_photoprism_secret"
 gen_secret "$BASE_PATH_SECRETS/authelia/storage_encryption_key"
 
 gen_secret "$BASE_PATH_SECRETS/olcRootPW"
@@ -65,6 +67,14 @@ slappasswd -s $(cat "$BASE_PATH_SECRETS/olcRootPW") > "$BASE_PATH_SECRETS/olcRoo
 
 gen_secret "$BASE_PATH_SECRETS/nextcloud/adminpass"
 gen_secret "$BASE_PATH_SECRETS/nextcloud/dbpass"
+
+gen_secret "$BASE_PATH_SECRETS/photoprism/adminpass"
+# ponytail: EnvironmentFile for photoprism — single KEY=VAL file read by systemd
+if [ ! -e "$BASE_PATH_SECRETS/photoprism/env" ]; then
+  # reuse shared OIDC secret (same file as Authelia) for single source of truth
+  echo "PHOTOPRISM_OIDC_SECRET=$(cat "$BASE_PATH_SECRETS/authelia/oicd_photoprism_secret")" > "$BASE_PATH_SECRETS/photoprism/env"
+  chmod 0400 "$BASE_PATH_SECRETS/photoprism/env"
+fi
 
 # gen_secret "$BASE_PATH_SECRETS/nextcloud/postgress_password"
 

@@ -24,14 +24,21 @@ let
     chmod 600 /etc/nixos/secrets/certs/homeCA.key
     mkdir -p /data/ssd/immich
     chown immich:immich /data/ssd/immich
+    mkdir -p ${vars.photoprism_originals_path}
+    mkdir -p ${vars.photoprism_originals_path}/import
+    # photoprism runs as DynamicUser, allow world-read for originals during test
+    chmod 755 ${vars.photoprism_originals_path}
+    systemctl restart photoprism || true
     tailscale ip -4
 
-    #halt -p
+    halt -p
   '';
   h = pkgs.writeShellScriptBin "h" "sudo halt -p";
   r = pkgs.writeShellScriptBin "h" "sudo reboot";
 in
 {
+  systemd.services.vector.serviceConfig.TimeoutStopSec = "1s";
+
   environment.systemPackages = [
     init-vm
     h
