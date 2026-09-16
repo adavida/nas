@@ -107,14 +107,34 @@ EOF
 
 user_list() {
   echo "utilisateurs ($BASE_DN):"
-  ldapsearch -H ldapi:/// -x -D "cn=admin,${BASE_DN}" -w "$PW" -b "ou=users,${BASE_DN}" cn mail uidNumber 2>/dev/null | grep -E "^dn:|^cn:|^mail:|^uidNumber:" || echo "aucun"
+  local out
+  out=$(ldapsearch -H ldapi:/// -x -D "cn=admin,${BASE_DN}" -w "$PW" -b "ou=users,${BASE_DN}" -LLL -o ldif-wrap=no cn mail uidNumber 2>/dev/null)
+  if [[ -z "$out" ]]; then echo "aucun"; return; fi
+  printf "%-20s %-30s %s\n" "CN" "MAIL" "UID"
+  printf "%-20s %-30s %s\n" "--------------------" "------------------------------" "---"
+  echo "$out" | awk '
+    /^dn: ou=users,/ { next }
+    /^dn: / { if (cn!="") printf "%-20s %-30s %s\n", cn, mail, uid; cn=""; mail=""; uid="" }
+    /^cn: / { cn=$2 }
+    /^mail: / { mail=$2 }
+    /^uidNumber: / { uid=$2 }
+    END { if (cn!="") printf "%-20s %-30s %s\n", cn, mail, uid }
+  ' | sort
 }
 
 user_groups() {
   local CN="${1:-}"; [[ -z "$CN" ]] && usage
   local USER_DN="cn=${CN},ou=users,${BASE_DN}"
   echo "groupes de $CN ($BASE_DN):"
-  ldapsearch -H ldapi:/// -x -D "cn=admin,${BASE_DN}" -w "$PW" -b "ou=groups,${BASE_DN}" "member=$USER_DN" cn 2>/dev/null | grep -E "^dn:|^cn:" || echo "aucun"
+  local out
+  out=$(ldapsearch -H ldapi:/// -x -D "cn=admin,${BASE_DN}" -w "$PW" -b "ou=groups,${BASE_DN}" -LLL -o ldif-wrap=no "member=$USER_DN" cn 2>/dev/null)
+  if [[ -z "$out" ]]; then echo "aucun"; return; fi
+  local groups
+  groups=$(echo "$out" | awk '/^cn: / { print $2 }' | sort -u)
+  if [[ -z "$groups" ]]; then echo "aucun"; return; fi
+  printf "%-20s\n" "GROUP"
+  printf "%-20s\n" "--------------------"
+  echo "$groups"
 }
 
 user_passwd() {
@@ -160,13 +180,34 @@ group_delete() {
 
 group_list() {
   echo "groupes ($BASE_DN):"
-  ldapsearch -H ldapi:/// -x -D "cn=admin,${BASE_DN}" -w "$PW" -b "ou=groups,${BASE_DN}" cn member 2>/dev/null | grep -E "^dn:|^cn:|^member:" || echo "aucun"
+  local out
+  out=$(ldapsearch -H ldapi:/// -x -D "cn=admin,${BASE_DN}" -w "$PW" -b "ou=groups,${BASE_DN}" -LLL -o ldif-wrap=no cn member 2>/dev/null)
+  if [[ -z "$out" ]]; then echo "aucun"; return; fi
+  local body
+  body=$(echo "$out" | awk '
+    /^dn: / { if (cn!="") printf "%-20s %s\n", cn, members; cn=""; members="" }
+    /^cn: / { cn=$2 }
+    /^member: / { m=$2; sub(/^cn=/, "", m); sub(/,.*/, "", m); members=members ? members", "m : m }
+    END { if (cn!="") printf "%-20s %s\n", cn, members }
+  ' | sort)
+  if [[ -z "$body" ]]; then echo "aucun"; return; fi
+  printf "%-20s %s\n" "GROUP" "MEMBERS"
+  printf "%-20s %s\n" "--------------------" "------------------------------"
+  echo "$body"
 }
 
 group_members() {
   local CN="${1:-}"; [[ -z "$CN" ]] && usage
   echo "membres de $CN ($BASE_DN):"
-  ldapsearch -H ldapi:/// -x -D "cn=admin,${BASE_DN}" -w "$PW" -b "cn=${CN},ou=groups,${BASE_DN}" member 2>/dev/null | grep "^member:" | cut -d' ' -f2- || echo "aucun"
+  local out
+  out=$(ldapsearch -H ldapi:/// -x -D "cn=admin,${BASE_DN}" -w "$PW" -b "cn=${CN},ou=groups,${BASE_DN}" -LLL -o ldif-wrap=no member 2>/dev/null)
+  if [[ -z "$out" ]]; then echo "aucun"; return; fi
+  local members
+  members=$(echo "$out" | awk '/^member: / { m=$2; sub(/^cn=/, "", m); sub(/,.*/, "", m); print m }' | sort -u)
+  if [[ -z "$members" ]]; then echo "aucun"; return; fi
+  printf "%-20s\n" "CN"
+  printf "%-20s\n" "--------------------"
+  echo "$members"
 }
 
 member_add() {
