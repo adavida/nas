@@ -11,7 +11,7 @@
   services.nextcloud = {
     enable = true;
     hostName = "nc.${vars.base_host}";
-    package = pkgs.nextcloud34;
+    package = pkgs.nextcloud35;
     https = true;
     config = {
       adminpassFile = "${path.secrets}/nextcloud/adminpass";
