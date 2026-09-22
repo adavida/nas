@@ -39,7 +39,7 @@
     };
     extraApps = {
       inherit (config.services.nextcloud.package.packages.apps)
-        news
+        # news
         contacts
         calendar
         tasks
