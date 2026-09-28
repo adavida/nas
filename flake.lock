@@ -2,11 +2,11 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1789998861,
-        "narHash": "sha256-62XMQD4WLdMAfdT0/8gJmPH2dKeTw908ryNloAplTr8=",
+        "lastModified": 1790533781,
+        "narHash": "sha256-F+b8u43BVF5DlM0pz7JQSbtbwKy5PrHIT5zQUekXsD0=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "1e8bc658fc985ef27ccd66d107d767b32bb7ef98",
+        "rev": "cf5e76507c6e23b59f7e0ffcc7baa2a39ddd8442",
         "type": "github"
       },
       "original": {
@@ -16,9 +16,30 @@
         "type": "github"
       }
     },
+    "portail": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790600862,
+        "narHash": "sha256-jJsrTGZ+VdD1dKbeuM1AKb8zlY7UibItIOva5y0OcYM=",
+        "owner": "adavida",
+        "repo": "portail_nas",
+        "rev": "3761b4e49d438f79e1469b302499c9e22a59d6b2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "adavida",
+        "repo": "portail_nas",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "portail": "portail"
       }
     }
   },

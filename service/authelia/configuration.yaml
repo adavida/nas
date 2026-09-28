@@ -135,6 +135,30 @@ identity_providers:
   ## The other portions of the mandatory OpenID Connect 1.0 configuration go here.
   ## See: https://www.authelia.com/c/oidc
     clients:
+      - client_id: 'portail'
+        client_name: 'Portail'
+        client_secret: {{ fileContent "#PATHSECRET#/authelia/oicd_portail_secret" | trimAll "\n" | trim | quote }}
+        public: false
+        authorization_policy: 'one_factor'
+        # consent_mode: 'implicit'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://portail.#HOSTNAME#/callback'
+        scopes:
+          - 'openid'
+          - 'profile'
+          - 'email'
+          - 'groups'
+          - 'offline_access'
+        userinfo_signed_response_alg: 'none'
+        token_endpoint_auth_method: 'client_secret_basic'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+          - 'refresh_token'
+        access_token_signed_response_alg: 'none'
       - client_id: 'nextcloud'
         client_name: 'NextCloud'
         client_secret: {{ fileContent "#PATHSECRET#/authelia/oicd_nextcloud_secret" | trimAll "\n" | trim | quote }} 

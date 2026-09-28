@@ -1,5 +1,5 @@
 {
-  base_dn = "DC=nas,DC=local";
+  base_dn = "dc=nas,dc=local";
   base_host = "nas.local";
   ca = (builtins.readFile ../secrets/certs/homeCA.crt);
   dns_ip = "192.168.1.254";

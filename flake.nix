@@ -3,6 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    portail = {
+      url = "github:adavida/portail_nas";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # secret = {
     #   url = "/etc/nixos/secret";
     #   flake = false;
@@ -14,6 +18,7 @@
     let
       system = "x86_64-linux";
       commonModules = [
+        inputs.portail.nixosModules.default
         ./common.nix
         ./service/authelia.nix
         ./service/clamav.nix
@@ -26,6 +31,7 @@
         ./service/nextcloud.nix
         ./service/nginx.nix
         ./service/openldap.nix
+        ./service/portail.nix
         # ./service/photoprism.nix
         ./service/sftp.nix
         {

@@ -60,6 +60,7 @@ gen_secret "$BASE_PATH_SECRETS/authelia/oicd_nextcloud_secret"
 gen_secret "$BASE_PATH_SECRETS/authelia/oicd_immich_secret"
 gen_secret "$BASE_PATH_SECRETS/authelia/oicd_grafana_secret"
 gen_secret "$BASE_PATH_SECRETS/authelia/oicd_photoprism_secret"
+gen_secret "$BASE_PATH_SECRETS/authelia/oicd_portail_secret"
 gen_secret "$BASE_PATH_SECRETS/authelia/storage_encryption_key"
 
 gen_secret "$BASE_PATH_SECRETS/olcRootPW"
