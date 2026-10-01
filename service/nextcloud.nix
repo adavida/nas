@@ -74,7 +74,7 @@
 
         nextcloud-occ config:system:set user_oidc use_pkce --value=true --type=boolean
         nextcloud-occ config:app:set user_oidc single_logout --value=1 --type=integer
-        nextcloud-occ user_oidc:provider autlelia --clientid=nextcloud  --clientsecret-file=$BASE_PATH_SECRETS/authelia/oicd_nextcloud_secret --endsessionendpointuri=https://nc.'${vars.base_host}'/ --scope="openid email profile groups" --discoveryuri=https://authelia.'${vars.base_host}'/.well-known/openid-configuration --unique-uid=0 --group-provisioning=1 --mapping-uid=email
+        nextcloud-occ user_oidc:provider autlelia --clientid=nextcloud  --clientsecret-file=$BASE_PATH_SECRETS/authelia/oicd_nextcloud_secret --endsessionendpointuri=https://authelia.'${vars.base_host}'/logout?rd=https://nc.'${vars.base_host}'/ --scope="openid email profile groups" --discoveryuri=https://authelia.'${vars.base_host}'/.well-known/openid-configuration --unique-uid=0 --group-provisioning=1 --mapping-uid=email
         nextcloud-occ config:app:set user_oidc allow_multiple_user_backends --value=0 --type=string -n
 
         nextcloud-occ config:system:set allow_local_remote_servers --value=true --type=boolean
@@ -151,4 +151,12 @@
       psql -c "ALTER ROLE nextcloud WITH PASSWORD '$ESCAPED'"
     '';
   };
+
+  services.portail.apps = [
+    {
+      name = "Nextcloud";
+      url = "https://nc.${vars.base_host}";
+      icon = "https://nextcloud.com/c/uploads/2022/03/favicon.png";
+    }
+  ];
 }

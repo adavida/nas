@@ -54,4 +54,13 @@
       '';
     };
   };
+
+  services.portail.apps = [
+    {
+      name = "immich";
+      url = "https://immich.${vars.base_host}";
+      description = "Photo";
+      icon = "https://raw.githubusercontent.com/immich-app/immich/main/design/immich-logo.png";
+    }
+  ];
 }

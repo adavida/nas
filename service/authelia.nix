@@ -114,4 +114,13 @@ in
       '';
     };
   };
+
+  services.portail.apps = [
+    {
+      name = "Authelia";
+      url = "https://authelia.${vars.base_host}";
+      description = "SSO et gestion des sessions";
+      icon = "https://www.authelia.com/apple-touch-icon.png";
+    }
+  ];
 }

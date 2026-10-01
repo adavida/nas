@@ -88,4 +88,12 @@
       '';
     };
   };
+  services.portail.apps = [
+    {
+      name = "Jellyfin";
+      url = "https://jellyfin.${vars.base_host}";
+      description = "video";
+      icon = "https://raw.githubusercontent.com/jellyfin/jellyfin-ux/master/branding/SVG/icon-solid-white.svg";
+    }
+  ];
 }

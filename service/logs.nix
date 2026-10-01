@@ -156,6 +156,7 @@
         name_attribute_path = "preferred_username";
         role_attribute_path = "grafana_role";
         scopes = "openid profile email groups grafana_scope";
+        signout_redirect_url = "https://authelia.${vars.base_host}/logout?rd=https://log.${vars.base_host}/";
         token_url = "https://authelia.${vars.base_host}/api/oidc/token";
         tls_skip_verify_insecure = true; # ponytail: wildcard sans SAN (secrets/makefile:35) → x509 legacy CN, skip jusqu'à rotation SAN
         use_pkce = true;
@@ -180,4 +181,12 @@
       proxyWebsockets = true;
     };
   };
+  services.portail.apps = [
+    {
+      name = "Grafana";
+      url = "https://log.${vars.base_host}/";
+      description = "Dashboards et alerting";
+      icon = "https://grafana.com/assets/img/fav32.png";
+    }
+  ];
 }
