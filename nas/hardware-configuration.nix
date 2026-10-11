@@ -30,7 +30,6 @@
   services.lvm.boot.thin.enable = true;
 
   environment.systemPackages = with pkgs; [
-    nvtopPackages.nvidia
   ];
 
   fileSystems."/sftp/david/videos".fsType = "ext4";
