@@ -25,5 +25,6 @@
       sslCertificate = "${secrets}/certs/_wildcard.${vars.base_host}.crt";
       sslCertificateKey = "${secrets}/certs/_wildcard.${vars.base_host}.key";
     };
+    lang = "fr";
   };
 }
