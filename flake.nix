@@ -2,7 +2,7 @@
   description = "A simple NixOS flake";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05-small";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     portail = {
       url = "github:adavida/portail_nas";
       inputs.nixpkgs.follows = "nixpkgs";
