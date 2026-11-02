@@ -20,7 +20,6 @@
       commonModules = [
         inputs.portail.nixosModules.default
         ./common.nix
-        ./service/authelia.nix
         ./service/clamav.nix
         ./service/collabora.nix
         ./service/coredns.nix

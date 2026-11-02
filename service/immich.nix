@@ -5,6 +5,12 @@
   vars,
   ...
 }:
+let
+  immichClientId = "immich";
+  immichHost = "immich.${vars.base_host}";
+  immichUrl = "https://${immichHost}";
+  portailUrl = config.services.portail.appUrl;
+in
 {
   nixpkgs.config.permittedInsecurePackages = [ "immich-2.7.5" ];
 
@@ -24,27 +30,22 @@
       oauth = {
         autoLaunch = true;
         autoRegister = true;
-        buttonText = "Login with Authelia";
-        clientId = "immich";
-        clientSecret._secret = "${path.secrets}/authelia/oicd_immich_secret";
+        buttonText = "Login with portail";
+        clientId = immichClientId;
+        clientSecret._secret = "/var/lib/portail/oidc/immich_secret";
         enabled = true;
-        issuerUrl = "https://authelia.${vars.base_host}/.well-known/openid-configuration";
+        issuerUrl = "${portailUrl}/.well-known/openid-configuration";
         roleClaim = "immich_role";
-        scope = "openid email profile groups immich_scope";
+        scope = "openid email profile groups";
       };
       passwordLogin.enabled = false;
-      server.externalDomain = "https://immich.${vars.base_host}";
+      server.externalDomain = immichUrl;
     };
   };
 
-  services.nginx.virtualHosts."immich.${vars.base_host}" = {
+  services.nginx.virtualHosts.${immichHost} = {
     forceSSL = true;
-    sslCertificate = "${secrets}/certs/_wildcard.${vars.base_host}.crt";
-    sslCertificateKey = "${secrets}/certs/_wildcard.${vars.base_host}.key";
     locations."/" = {
-      proxyPass = "http://localhost:${toString config.services.immich.port}";
-      proxyWebsockets = true;
-      recommendedProxySettings = true;
       # proxy_buffering off;
       extraConfig = ''
         client_max_body_size 50000M;
@@ -52,15 +53,47 @@
         proxy_send_timeout   600s;
         send_timeout         600s;
       '';
+      proxyPass = "http://localhost:${toString config.services.immich.port}";
+      proxyWebsockets = true;
+      recommendedProxySettings = true;
     };
+    sslCertificate = "${secrets}/certs/_wildcard.${vars.base_host}.crt";
+    sslCertificateKey = "${secrets}/certs/_wildcard.${vars.base_host}.key";
   };
 
   services.portail.apps = [
     {
-      name = "immich";
-      url = "https://immich.${vars.base_host}";
       description = "Photo";
       icon = "https://raw.githubusercontent.com/immich-app/immich/main/design/immich-logo.png";
+      name = "immich";
+      oidc = {
+        clientId = immichClientId;
+        enable = true;
+        group = "immich";
+        redirectUris = [
+          "${immichUrl}/auth/login"
+          "${immichUrl}/api/oauth/mobile-redirect"
+        ];
+        user = "immich";
+        customClaims = [
+          {
+            name = "immich_role";
+            value = "user";
+          }
+          {
+            name = "immich_role";
+            value = "admin";
+            group = "admin";
+          }
+        ];
+      };
+      url = immichUrl;
     }
   ];
+
+  systemd.services.immich-server = {
+    after = [ "portail-backend.service" ];
+    requires = [ "portail-backend.service" ];
+    restartIfChanged = true;
+  };
 }

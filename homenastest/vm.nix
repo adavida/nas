@@ -47,7 +47,10 @@ in
     pkgs.yq
     pkgs.jq
     pkgs.tailspin
+    pkgs.sqlite
+    pkgs.postgresql
   ];
+  services.postgresql.settings.log_statement = "all";
   virtualisation.vmVariant = {
     virtualisation = {
       memorySize = 16384;
@@ -60,6 +63,10 @@ in
         src = {
           source = outPath + "";
           target = src;
+        };
+        src1 = {
+          source = "/home/david/config/nixosnas/nas";
+          target = "/src1";
         };
       };
     };

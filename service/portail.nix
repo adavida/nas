@@ -5,6 +5,10 @@
   vars,
   ...
 }:
+let
+  portailHost = "portail.${vars.base_host}";
+  portailUrl = "https://${portailHost}";
+in
 {
   services.portail = {
     enable = true;
@@ -12,18 +16,20 @@
     ldap = {
       adminPasswordFile = "${secrets}/olcRootPW";
       baseDn = vars.base_dn;
-      url = "ldaps://ldap.${vars.base_host}";
       caCertificateFile = "${secrets}/certs/ldap.${vars.base_host}.crt";
       peopleOu = "users";
+      url = "ldaps://ldap.${vars.base_host}";
     };
-    appUrl = "https://portail.${vars.base_host}";
-    issuerUrl = "https://authelia.${vars.base_host}";
-    oidc.clientSecretFile = "${secrets}/authelia/oicd_portail_secret";
     vhost = {
-      hostName = "portail.${vars.base_host}";
       forceSSL = true;
+      hostName = portailHost;
       sslCertificate = "${secrets}/certs/_wildcard.${vars.base_host}.crt";
       sslCertificateKey = "${secrets}/certs/_wildcard.${vars.base_host}.key";
+    };
+    appUrl = portailUrl;
+    oidc = {
+      logSecretEvents = true;
+      secretsDir = "/var/lib/portail/oidc";
     };
     lang = "fr";
   };

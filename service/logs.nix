@@ -5,113 +5,121 @@
   vars,
   ...
 }:
+let
+  grafanaClientId = "grafana";
+  logHost = "log.${vars.base_host}";
+  logUrl = "https://${logHost}";
+  portailUrl = config.services.portail.appUrl;
+in
 {
   services.journald.extraConfig = "Storage=persistent";
 
   environment.etc."grafana-secret" = {
-    text = "SW2YcwTIb9zpOOhoPsMm";
-    mode = "0440";
     group = "grafana";
+    mode = "0440";
+    text = "SW2YcwTIb9zpOOhoPsMm";
   };
 
   services.loki = {
     enable = true;
     configuration = {
+      analytics.reporting_enabled = false;
       auth_enabled = false;
-      server.http_listen_port = 3100;
       common = {
         instance_addr = "127.0.0.1";
         path_prefix = "/var/lib/loki";
+        replication_factor = 1;
+        ring.kvstore.store = "inmemory";
         storage.filesystem = {
           chunks_directory = "/var/lib/loki/chunks";
           rules_directory = "/var/lib/loki/rules";
         };
-        replication_factor = 1;
-        ring.kvstore.store = "inmemory";
       };
-      schema_config.configs = [
-        {
-          from = "2020-10-24";
-          store = "tsdb";
-          object_store = "filesystem";
-          schema = "v13";
-          index = {
-            prefix = "index_";
-            period = "24h";
-          };
-        }
-      ];
       compactor = {
+        delete_request_store = "filesystem";
         retention_enabled = true;
         working_directory = "/var/lib/loki/compactor";
-        delete_request_store = "filesystem";
       };
       limits_config = {
         allow_structured_metadata = true;
         retention_period = "720h";
       };
-      analytics.reporting_enabled = false;
+      schema_config.configs = [
+        {
+          from = "2020-10-24";
+          index = {
+            prefix = "index_";
+            period = "24h";
+          };
+          object_store = "filesystem";
+          schema = "v13";
+          store = "tsdb";
+        }
+      ];
+      server.http_listen_port = 3100;
     };
   };
 
-  systemd.services.vector.serviceConfig.SupplementaryGroups = [
-    "nginx"
-    "jellyfin"
-    "nextcloud"
-  ];
-  systemd.services.vector.serviceConfig.ReadOnlyPaths = [ "/var/log/journal" ];
+  systemd.services.vector.serviceConfig = {
+    ReadOnlyPaths = [ "/var/log/journal" ];
+    SupplementaryGroups = [
+      "nginx"
+      "jellyfin"
+      "nextcloud"
+    ];
+  };
   services.vector = {
     enable = true;
     journaldAccess = true;
     settings = {
+      sinks = {
+        loki_journal = {
+          endpoint = "http://127.0.0.1:3100";
+          encoding.codec = "json";
+          inputs = [ "journal" ];
+          labels = {
+            host = "{{ host }}";
+            unit = "{{ _SYSTEMD_UNIT }}";
+          };
+          type = "loki";
+        };
+        loki_nginx = {
+          endpoint = "http://127.0.0.1:3100";
+          encoding.codec = "json";
+          inputs = [
+            "nginx_access"
+            "nginx_error"
+            "jellyfin"
+            "nextcloud"
+          ];
+          labels = {
+            file = "{{ file }}";
+            host = "{{ host }}";
+          };
+          type = "loki";
+        };
+      };
       sources = {
-        journal.type = "journald";
-        nginx_access = {
+        jellyfin = {
+          include = [ "/var/log/jellyfin/*.log" ];
           type = "file";
+        };
+        journal.type = "journald";
+        nextcloud = {
+          include = [ "/data/ssd/nc/data/nextcloud.log" ];
+          type = "file";
+        };
+        nginx_access = {
           include = [ "/var/log/nginx/access.log" ];
+          type = "file";
         };
         nginx_error = {
-          type = "file";
           include = [ "/var/log/nginx/error.log" ];
-        };
-        jellyfin = {
           type = "file";
-          include = [ "/var/log/jellyfin/*.log" ];
-        };
-        nextcloud = {
-          type = "file";
-          include = [ "/data/ssd/nc/data/nextcloud.log" ];
-        };
-      };
-      sinks.loki_journal = {
-        type = "loki";
-        inputs = [ "journal" ];
-        endpoint = "http://127.0.0.1:3100";
-        encoding.codec = "json";
-        labels = {
-          host = "{{ host }}";
-          unit = "{{ _SYSTEMD_UNIT }}";
-        };
-      };
-      sinks.loki_nginx = {
-        type = "loki";
-        inputs = [
-          "nginx_access"
-          "nginx_error"
-          "jellyfin"
-          "nextcloud"
-        ];
-        endpoint = "http://127.0.0.1:3100";
-        encoding.codec = "json";
-        labels = {
-          host = "{{ host }}";
-          file = "{{ file }}";
         };
       };
     };
   };
-
-  users.users.grafana.extraGroups = [ "authelia-main" ];
 
   services.grafana = {
     enable = true;
@@ -140,53 +148,65 @@
       ];
     };
     settings = {
-      auth.disable_login_form = true; # force Authelia seul, plus de admin/admin local (break-glass via allow_sign_up false déjà)
+      auth.disable_login_form = true; # force Portail only, no local admin/admin
       "auth.generic_oauth" = {
         allowed_groups = "admin";
-        api_url = "https://authelia.${vars.base_host}/api/oidc/userinfo";
-        auth_url = "https://authelia.${vars.base_host}/api/oidc/authorization";
-        auto_login = true; # force Authelia : redirige /login vers Authelia sans passer par formulaire Grafana
-        client_id = "grafana";
-        client_secret = "$__file{/etc/nixos/secrets/authelia/oicd_grafana_secret}";
+        api_url = "${portailUrl}/api/oidc/userinfo";
+        auth_url = "${portailUrl}/api/oidc/authorization";
+        auto_login = true; # redirect /login to Portail without going through the Grafana form
+        client_id = grafanaClientId;
+        client_secret = "$__file{/var/lib/portail/oidc/grafana_secret}";
         email_attribute_path = "email";
         enabled = true;
         groups_attribute_path = "groups";
         login_attribute_path = "preferred_username";
-        name = "Authelia";
+        name = "Portail";
         name_attribute_path = "preferred_username";
-        role_attribute_path = "grafana_role";
-        scopes = "openid profile email groups grafana_scope";
-        signout_redirect_url = "https://authelia.${vars.base_host}/logout?rd=https://log.${vars.base_host}/";
-        token_url = "https://authelia.${vars.base_host}/api/oidc/token";
-        tls_skip_verify_insecure = true; # ponytail: wildcard sans SAN (secrets/makefile:35) → x509 legacy CN, skip jusqu'à rotation SAN
+        role_attribute_path = "contains(groups, 'admin') && 'Admin' || 'Viewer'";
+        scopes = "openid profile email groups";
+        signout_redirect_url = "${portailUrl}/logout?rd=${logUrl}/";
+        token_url = "${portailUrl}/api/oidc/token";
+        tls_skip_verify_insecure = true; # ponytail: wildcard without SAN (secrets/makefile:35) → x509 legacy CN, skip until SAN rotation
         use_pkce = true;
       };
       security.secret_key = "$__file{/etc/grafana-secret}";
       server = {
-        domain = "log.${vars.base_host}";
+        domain = logHost;
         http_addr = "127.0.0.1";
         http_port = 3001;
-        root_url = "https://log.${vars.base_host}/";
+        root_url = "${logUrl}/";
       };
       users.allow_sign_up = false;
     };
   };
 
-  services.nginx.virtualHosts."log.${vars.base_host}" = {
+  services.nginx.virtualHosts.${logHost} = {
     forceSSL = true;
-    sslCertificate = "${secrets}/certs/_wildcard.${vars.base_host}.crt";
-    sslCertificateKey = "${secrets}/certs/_wildcard.${vars.base_host}.key";
     locations."/" = {
       proxyPass = "http://127.0.0.1:3001";
       proxyWebsockets = true;
     };
+    sslCertificate = "${secrets}/certs/_wildcard.${vars.base_host}.crt";
+    sslCertificateKey = "${secrets}/certs/_wildcard.${vars.base_host}.key";
+  };
+  systemd.services.grafana = {
+    after = [ "portail-backend.service" ];
+    requires = [ "portail-backend.service" ];
+    restartIfChanged = true;
   };
   services.portail.apps = [
     {
-      name = "Grafana";
-      url = "https://log.${vars.base_host}/";
       description = "Dashboards et alerting";
       icon = "https://grafana.com/assets/img/fav32.png";
+      name = "Grafana";
+      oidc = {
+        clientId = grafanaClientId;
+        enable = true;
+        group = "grafana";
+        redirectUris = [ "${logUrl}/login/generic_oauth" ];
+        user = "grafana";
+      };
+      url = "${logUrl}/";
     }
   ];
 }
