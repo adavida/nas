@@ -12,6 +12,20 @@
 
   services.prometheus = {
     enable = true;
+    exporters.node = {
+      enable = true;
+      enabledCollectors = [
+        "hwmon"
+        "systemd"
+        "thermal_zone"
+      ];
+      listenAddress = "127.0.0.1";
+      port = 9100;
+    };
+    exporters.smartctl = {
+      enable = true;
+      listenAddress = "127.0.0.1";
+    };
     globalConfig.scrape_interval = "15s";
     listenAddress = "127.0.0.1";
     port = 9090;
@@ -41,17 +55,14 @@
           }
         ];
       }
+      {
+        job_name = "smartctl";
+        static_configs = [
+          {
+            targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.smartctl.port}" ];
+          }
+        ];
+      }
     ];
-  };
-
-  services.prometheus.exporters.node = {
-    enable = true;
-    enabledCollectors = [
-      "hwmon"
-      "systemd"
-      "thermal_zone"
-    ];
-    listenAddress = "127.0.0.1";
-    port = 9100;
   };
 }

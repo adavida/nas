@@ -128,6 +128,7 @@ in
         {
           name = "nas";
           options.path = "/etc/nixos/grafana-dashboards";
+          options.updateIntervalSeconds = 30;
           type = "file";
         }
       ];
