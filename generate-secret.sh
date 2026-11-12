@@ -44,24 +44,6 @@ echo "cn : ${CN}"
 BASE_PATH_SECRETS="${BASE_PATH}/secrets"
 BASE_PATH_KEY="${BASE_PATH}/key"
 
-mkdir -p "$BASE_PATH_SECRETS/authelia"
-mkdir -p "$BASE_PATH_KEY/authelia"
-
-mkdir -p "$BASE_PATH_SECRETS/nextcloud"
-mkdir -p "$BASE_PATH_SECRETS/photoprism"
-
-chown authelia-main:authelia-main "$BASE_PATH_SECRETS/authelia"
-chown authelia-main:authelia-main "$BASE_PATH_KEY/authelia"
-
-gen_secret "$BASE_PATH_SECRETS/authelia/jwt_secret"
-gen_secret "$BASE_PATH_SECRETS/authelia/session_secret"
-gen_secret "$BASE_PATH_SECRETS/authelia/oidc_hmac_secret"
-gen_secret "$BASE_PATH_SECRETS/authelia/oicd_nextcloud_secret"
-gen_secret "$BASE_PATH_SECRETS/authelia/oicd_immich_secret"
-gen_secret "$BASE_PATH_SECRETS/authelia/oicd_grafana_secret"
-gen_secret "$BASE_PATH_SECRETS/authelia/oicd_photoprism_secret"
-gen_secret "$BASE_PATH_SECRETS/authelia/oicd_portail_secret"
-gen_secret "$BASE_PATH_SECRETS/authelia/storage_encryption_key"
 
 gen_secret "$BASE_PATH_SECRETS/olcRootPW"
 slappasswd -s $(cat "$BASE_PATH_SECRETS/olcRootPW") > "$BASE_PATH_SECRETS/olcRootPW.sha"
@@ -76,11 +58,3 @@ if [ ! -e "$BASE_PATH_SECRETS/photoprism/env" ]; then
   echo "PHOTOPRISM_OIDC_SECRET=$(cat "$BASE_PATH_SECRETS/authelia/oicd_photoprism_secret")" > "$BASE_PATH_SECRETS/photoprism/env"
   chmod 0400 "$BASE_PATH_SECRETS/photoprism/env"
 fi
-
-# gen_secret "$BASE_PATH_SECRETS/nextcloud/postgress_password"
-
-# ssh -p 220 root@ssh."${CN}" -C 'cat /etc/nixos/secrets/olcRootPW'  > "$BASE_PATH_SECRETS/authelia/ldap_password"
-
-sudo -u authelia-main openssl req -x509 -nodes -newkey rsa:2048 -keyout "$BASE_PATH_KEY/authelia/private.pem" -out "$BASE_PATH_KEY/authelia/public.crt" -sha256 -days 365 -subj "/CN=$CN"
-sudo -u authelia-main openssl genpkey -algorithm RSA -out "$BASE_PATH_KEY/authelia/private_key.pem" -pkeyopt rsa_keygen_bits:2048
-sudo -u authelia-main openssl req -new -x509 -key "$BASE_PATH_KEY/authelia/private_key.pem" -out "$BASE_PATH_KEY/authelia/certificate.pem" -days 365 -subj "/CN=$CN"

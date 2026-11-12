@@ -32,7 +32,7 @@ in
         autoRegister = true;
         buttonText = "Login with portail";
         clientId = immichClientId;
-        clientSecret._secret = "/var/lib/portail/oidc/immich_secret";
+        clientSecret._secret = "${config.services.portail.oidc.secretsDir}/immich_secret";
         enabled = true;
         issuerUrl = "${portailUrl}/.well-known/openid-configuration";
         roleClaim = "immich_role";

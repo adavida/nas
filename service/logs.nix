@@ -107,7 +107,7 @@ in
         };
         journal.type = "journald";
         nextcloud = {
-          include = [ "/data/ssd/nc/data/nextcloud.log" ];
+          include = [ "${config.services.nextcloud.datadir}/data/nextcloud.log" ];
           type = "file";
         };
         nginx_access = {
@@ -157,7 +157,7 @@ in
         auth_url = "${portailUrl}/api/oidc/authorization";
         auto_login = true; # redirect /login to Portail without going through the Grafana form
         client_id = grafanaClientId;
-        client_secret = "$__file{/var/lib/portail/oidc/grafana_secret}";
+        client_secret = "$__file{${config.services.portail.oidc.secretsDir}/grafana_secret}";
         email_attribute_path = "email";
         enabled = true;
         groups_attribute_path = "groups";
