@@ -27,6 +27,7 @@ in
       sslCertificateKey = "${secrets}/certs/_wildcard.${vars.base_host}.key";
     };
     appUrl = portailUrl;
+    directory.backend = "ldap"; 
     oidc = {
       logSecretEvents = true;
       secretsDir = "/var/lib/portail/oidc";

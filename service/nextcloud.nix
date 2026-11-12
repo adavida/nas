@@ -8,7 +8,7 @@
   ...
 }:
 let
-  collaboraHost = "collabora.${vars.base_host}";
+  collaboraHost = config.services.collabora-online.settings.server_name;
   ncHost = "nc.${vars.base_host}";
   ncUrl = "https://${ncHost}";
   nextcloudClientId = "nextcloud";

@@ -4,6 +4,9 @@
   secrets,
   ...
 }:
+let
+  ncHost = config.services.nextcloud.hostName;
+in
 {
   services.collabora-online = {
     enable = true;
@@ -25,21 +28,21 @@
       storage.wopi = {
         "@allow" = true;
         host = [
-          "nc.${vars.base_host}"
-          "https://nc.${vars.base_host}"
+          ncHost
+          "https://${ncHost}"
         ];
       };
       storage.ssl_verification = true;
     };
     aliasGroups = [
       {
-        host = "https://nc.${vars.base_host}:443";
+        host = "https://${ncHost}:443";
         aliases = [ "${vars.ip}" ];
       }
     ];
   };
 
-  services.nginx.virtualHosts."collabora.${vars.base_host}" = {
+  services.nginx.virtualHosts.${config.services.collabora-online.settings.server_name} = {
     forceSSL = true;
     sslCertificate = "${secrets}/certs/_wildcard.${vars.base_host}.crt";
     sslCertificateKey = "${secrets}/certs/_wildcard.${vars.base_host}.key";

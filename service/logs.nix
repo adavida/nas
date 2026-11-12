@@ -9,6 +9,7 @@ let
   grafanaClientId = "grafana";
   logHost = "log.${vars.base_host}";
   logUrl = "https://${logHost}";
+  lokiEndpoint = "http://127.0.0.1:${toString config.services.loki.configuration.server.http_listen_port}";
   portailUrl = config.services.portail.appUrl;
 in
 {
@@ -74,7 +75,7 @@ in
     settings = {
       sinks = {
         loki_journal = {
-          endpoint = "http://127.0.0.1:3100";
+          endpoint = lokiEndpoint;
           encoding.codec = "json";
           inputs = [ "journal" ];
           labels = {
@@ -84,7 +85,7 @@ in
           type = "loki";
         };
         loki_nginx = {
-          endpoint = "http://127.0.0.1:3100";
+          endpoint = lokiEndpoint;
           encoding.codec = "json";
           inputs = [
             "nginx_access"
@@ -138,13 +139,13 @@ in
           isDefault = true;
           name = "Loki";
           type = "loki";
-          url = "http://127.0.0.1:3100";
+          url = lokiEndpoint;
         }
         {
           access = "proxy";
           name = "Prometheus";
           type = "prometheus";
-          url = "http://127.0.0.1:9090";
+          url = "http://127.0.0.1:${toString config.services.prometheus.port}";
         }
       ];
     };
@@ -184,7 +185,7 @@ in
   services.nginx.virtualHosts.${logHost} = {
     forceSSL = true;
     locations."/" = {
-      proxyPass = "http://127.0.0.1:3001";
+      proxyPass = "http://127.0.0.1:${toString config.services.grafana.settings.server.http_port}";
       proxyWebsockets = true;
     };
     sslCertificate = "${secrets}/certs/_wildcard.${vars.base_host}.crt";
